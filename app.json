@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "fruittrace",
-    "slug": "fruittrace",
+    "slug": "fruit-batch-management-system",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,6 +20,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a6cec5c6-3a0b-4ed0-90f3-0c287053113c"
+      }
+    },
+    "owner": "liam0412s-team"
   }
 }
