@@ -136,3 +136,12 @@ border       #D6E5D4   viền
 - Gọi Firebase trong vòng lặp đếm ngược
 - Dùng `expo-barcode-scanner` (đã khai tử)
 - Hardcode hệ số độ chín trong code, phải đọc từ `config/`
+
+
+## Lưu ý môi trường
+- Có xung đột peer dependency giữa expo-router và react.
+  Mọi lệnh cài thư viện phải kèm --legacy-peer-deps
+- Expo SDK 57
+- Xung đột peer dependency giữa expo-router và react.
+  Với npm:  npm install <pkg> --legacy-peer-deps
+  Với expo: npx expo install <pkg> -- --legacy-peer-deps
