@@ -137,11 +137,10 @@ border       #D6E5D4   viền
 - Dùng `expo-barcode-scanner` (đã khai tử)
 - Hardcode hệ số độ chín trong code, phải đọc từ `config/`
 
-
-## Lưu ý môi trường
-- Có xung đột peer dependency giữa expo-router và react.
-  Mọi lệnh cài thư viện phải kèm --legacy-peer-deps
-- Expo SDK 57
-- Xung đột peer dependency giữa expo-router và react.
-  Với npm:  npm install <pkg> --legacy-peer-deps
-  Với expo: npx expo install <pkg> -- --legacy-peer-deps
+  ## Lưu ý môi trường
+- Expo SDK 57, package name com.liam0412steam.fruitbatchmanagementsystem
+- Có .npmrc với legacy-peer-deps=true, đừng xoá
+- Cài thư viện: npm install <pkg> --legacy-peer-deps
+  hoặc npx expo install <pkg> -- --legacy-peer-deps
+- slug trong app.json phải giữ "fruit-batch-management-system" cho khớp projectId EAS
+- Đã build development APK thành công, chỉ build lại khi thêm thư viện native
