@@ -116,7 +116,7 @@ export const strings = {
     errorNameRequired: 'Vui lòng nhập họ tên',
     errorOrgRequired: 'Vui lòng nhập tên vườn/đại lý',
     errorRoleRequired: 'Vui lòng chọn vai trò',
-    mockHint: 'Chế độ demo: grower@fruittrace.dev hoặc retailer@fruittrace.dev, mật khẩu bất kỳ.',
+    mockHint: 'Chế độ demo: vuon@test.com hoặc daily@test.com, mật khẩu bất kỳ.',
   },
   growerHome: {
     greeting: 'Xin chào',

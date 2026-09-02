@@ -17,7 +17,7 @@ export default function RetailerHomeScreen() {
   const router = useRouter();
   const { profile } = useAuth();
   const { lots, loading, error } = useLotsByHolder(profile?.uid);
-  const { station } = useStationTemp(profile?.uid);
+  const { station } = useStationTemp(profile?.uid, profile?.role);
   const { config } = useConfig();
 
   const inStockLots = lots

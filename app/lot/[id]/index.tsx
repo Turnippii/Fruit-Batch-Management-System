@@ -11,6 +11,7 @@ import { useAuth } from '../../../src/context/AuthContext';
 import { useLotById } from '../../../src/hooks/useLotById';
 import { useConfig } from '../../../src/hooks/useConfig';
 import { useStationTemp } from '../../../src/hooks/useStationTemp';
+import { getHolderRole } from '../../../src/lib/lotHolder';
 
 export default function LotDetailScreen() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function LotDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { lot, loading: lotLoading, error: lotError } = useLotById(id);
   const { config, loading: configLoading, error: configError } = useConfig();
-  const { station } = useStationTemp(lot?.currentHolderId);
+  const { station } = useStationTemp(lot?.currentHolderId, lot ? getHolderRole(lot.status) : undefined);
   const [now, setNow] = useState(() => new Date());
   const [deleting, setDeleting] = useState(false);
 

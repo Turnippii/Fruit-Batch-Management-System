@@ -8,8 +8,10 @@ import { AlertCard } from '../components/AlertCard';
 import { TimelineItem } from '../components/TimelineItem';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AsyncState } from '../components/AsyncState';
-import { useLots } from '../state/LotsContext';
+import { useAuth } from '../context/AuthContext';
 import { useAlerts } from '../hooks/useAlerts';
+import { useLotsByGrower } from '../hooks/useLotsByGrower';
+import { useLotsByHolder } from '../hooks/useLotsByHolder';
 
 interface AlertsScreenProps {
   accentColor: string;
@@ -17,8 +19,12 @@ interface AlertsScreenProps {
 
 export function AlertsScreen({ accentColor }: AlertsScreenProps) {
   const router = useRouter();
-  const { lots, loading: lotsLoading, error: lotsError } = useLots();
-  const { alerts, loading: alertsLoading, error: alertsError } = useAlerts();
+  const { profile } = useAuth();
+  const isRetailer = profile?.role === 'retailer';
+  const growerLots = useLotsByGrower(!isRetailer ? profile?.uid : undefined);
+  const retailerLots = useLotsByHolder(isRetailer ? profile?.uid : undefined);
+  const { lots, loading: lotsLoading, error: lotsError } = isRetailer ? retailerLots : growerLots;
+  const { alerts, loading: alertsLoading, error: alertsError } = useAlerts(profile?.role, profile?.uid);
   const { lotId } = useLocalSearchParams<{ lotId?: string }>();
   const traceLot = lots.find((lot) => lot.id === lotId) ?? lots[0];
 

@@ -183,7 +183,9 @@
       "type": "new_stock",
       "createdAt": "2026-08-29T01:30:00.000Z",
       "isRead": true,
-      "message": "Lô xoài mới nhập kho, tình trạng ổn định."
+      "message": "Lô xoài mới nhập kho, tình trạng ổn định.",
+      "retailerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2"
     },
     "alert-002": {
       "lotId": "FC-2026-B3M18P",
@@ -191,7 +193,9 @@
       "type": "expiring_soon",
       "createdAt": "2026-09-01T06:00:00.000Z",
       "isRead": false,
-      "message": "Lô chuối sắp hết hạn, ưu tiên bán trước."
+      "message": "Lô chuối sắp hết hạn, ưu tiên bán trước.",
+      "retailerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2"
     },
     "alert-003": {
       "lotId": "FC-2026-E5K33W",
@@ -199,7 +203,9 @@
       "type": "overdue",
       "createdAt": "2026-09-01T07:00:00.000Z",
       "isRead": false,
-      "message": "Lô nho sắp quá hạn sử dụng, cần xử lý ngay."
+      "message": "Lô nho sắp quá hạn sử dụng, cần xử lý ngay.",
+      "retailerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2"
     }
   },
   "config": {

@@ -3,6 +3,7 @@ import { colors, fontSize, radius, spacing, StatusColorKey, statusColorHex } fro
 import { ALERT_LEVEL_LABELS, FRUIT_TYPE_LABELS, strings } from '../constants/strings';
 import { formatDateTime } from '../lib/format';
 import { getRemainingDaysFloor, resolveConsumedRatio } from '../lib/shelfLife';
+import { getHolderRole } from '../lib/lotHolder';
 import type { Lot } from '../mocks/lots';
 import { assumedTemp as defaultAssumedTemp } from '../mocks/config';
 import { useConfig } from '../hooks/useConfig';
@@ -18,7 +19,7 @@ interface AlertCardProps {
 
 export function AlertCard({ level, message, createdAt, lot, onPress }: AlertCardProps) {
   const { config } = useConfig();
-  const { station } = useStationTemp(lot?.currentHolderId);
+  const { station } = useStationTemp(lot?.currentHolderId, lot ? getHolderRole(lot.status) : undefined);
   const color = statusColorHex[level];
   const remainingDays = lot
     ? getRemainingDaysFloor(

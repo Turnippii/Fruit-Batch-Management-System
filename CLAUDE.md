@@ -46,7 +46,8 @@ lots/{lotId}             fruitType, ripeness, harvestDate, quantity, unit,
                          status, growerId, currentHolderId, imageUrl, createdAt
 lots/{lotId}/history     [{ event, timestamp, actorId, note }]
 stations/{stationId}     temp, humid, updatedAt, retailerId
-alerts/{alertId}         lotId, level: "green"|"yellow"|"red", type, createdAt, isRead
+alerts/{alertId}         lotId, level: "green"|"yellow"|"red", type, createdAt,
+                         isRead, message, retailerId, growerId
 config/ripenessFactor    hệ số độ chín theo loại quả và trạng thái
 config/shelfLifeBase     T0 theo loại quả, lấy từ USDA FoodKeeper
 config/ripenessSupported ["Chuoi", "Xoai"]
@@ -74,9 +75,39 @@ Kiến trúc 3 lớp, không màn hình nào gọi Firebase SDK trực tiếp:
 - `src/context/AuthContext.tsx` (qua `useAuth`) và `src/state/LotsContext.tsx`
   (qua `useLots`) — 2 context toàn app, cùng cơ chế chuyển mock/thật.
 
+**Mọi hook subscribe theo uid (`useStationTemp`, `useLotById`, `useLotsByHolder`,
+`useLotsByGrower`, `useAlerts`) đều gọi `useAuth()` bên trong để tự bảo vệ,
+không phụ thuộc caller truyền đúng:**
+
+- Không subscribe khi `AuthContext.loading === true` (chưa có token thật —
+  tránh query lúc app vừa mở hoặc vừa đổi tài khoản).
+- `useEffect` liệt kê CẢ `profile?.uid` lẫn `authLoading` trong dependency
+  array, không chỉ id đang truy vấn — vì `AuthContext.loading` chỉ `false`
+  MỘT LẦN khi app mở (không bật lại `true` giữa phiên), nên riêng đổi
+  `profile.uid` (đăng xuất rồi đăng nhập tài khoản khác, KHÔNG reload app)
+  mới là tín hiệu đúng để huỷ listener mang token cũ và mở lại listener mới —
+  thiếu `profile?.uid` trong deps thì hook không biết phiên đã đổi.
+- Lỗi `permission_denied` từ Firebase được coi là THOÁNG QUA (đúng lúc token
+  cũ chưa kịp thay bằng token mới) — `src/lib/firebaseErrors.ts` nhận diện,
+  hook giữ nguyên trạng thái `loading: true` thay vì hiện lỗi thật ra UI. Đánh
+  đổi có chủ đích: nếu rules sai thật (không tự khỏi), màn hình đứng ở loading
+  thay vì báo lỗi rõ ràng — chấp nhận được cho demo, khó debug hơn nếu rules
+  hỏng thật.
+- `useStationTemp` còn nhận thêm `role` (xem `src/lib/lotHolder.ts` —
+  `getHolderRole(lot.status)`) — chỉ subscribe khi `role === 'retailer'`, trả
+  `station: undefined` ngay nếu không (chủ vườn tra station theo uid của
+  chính mình sẽ luôn ra null vô ích vì không có trạm nào gắn với chủ vườn).
+
 **`src/config.ts` — cờ `USE_MOCK`.** `true` = mọi hook/context trên đọc thẳng
 `src/mocks/`, không đụng mạng. `false` = dùng Firebase thật. Đổi tay khi cần,
-dùng làm phương án dự phòng lúc demo mất mạng — không xoá `src/mocks/`.
+dùng làm phương án dự phòng lúc demo mất mạng — không xoá `src/mocks/`. Hai
+tài khoản demo trong `src/mocks/users.ts` (`vuon@test.com`, `daily@test.com`)
+dùng đúng email của 2 tài khoản Firebase Auth thật — đổi `USE_MOCK` không
+phải đổi cách đăng nhập, chỉ mật khẩu bị bỏ qua ở chế độ mock. `growerId`/
+`currentHolderId`/`actorId` trong `src/mocks/lots.ts` cũng dùng đúng
+`mock-grower`/`mock-retailer` — khớp uid mock mà `AuthContext` gán
+(`mock-${role}`), để `useLotsByGrower`/`useLotsByHolder`/`useAlerts` lọc
+đúng ở cả hai chế độ.
 
 **Biến môi trường** (`.env`, tiền tố bắt buộc `EXPO_PUBLIC_` để lọt vào bundle
 client): `EXPO_PUBLIC_FB_API_KEY`, `EXPO_PUBLIC_FB_AUTH_DOMAIN`,
@@ -105,13 +136,20 @@ Database → Rules).** Phân quyền theo đúng vai trò, hệ quả quan trọ
   nhập — khớp đúng thiết kế "mã QR chỉ chứa mã lô, quét QR → tra Firebase":
   biết đúng mã coi như đã có quyền tra cứu, không cần là grower/retailer của
   lô đó. Dùng cho `useLotById`.
-- `alerts`: đọc/ghi một alert cụ thể được xác nhận bằng cách tra chéo sang
-  `lots/{alert.lotId}/currentHolderId` — nhưng KHÔNG có rule nào cho phép
-  liệt kê toàn bộ `alerts/` (không có field nào lọc trực tiếp theo đại lý).
-  `src/hooks/useAlerts.ts` hiện vẫn gọi `subscribeAlerts()` (liệt kê toàn bộ)
-  nên sẽ permission-denied ở chế độ Firebase thật — cần đổi cấu trúc dữ liệu
-  (ví dụ `alerts/{retailerId}/{alertId}`) hoặc đổi cách truy vấn trước khi
-  dùng thật, chưa làm trong milestone này.
+- `stations`: giống `lots` — `.read` query-scoped PHẢI đặt ở nhánh CHA
+  `stations` (không phải `stations/$stationId`), vì Firebase Realtime Database
+  đánh giá quyền đọc ở đúng nhánh được truy vấn (`orderByChild`/`equalTo`
+  chạy ở `stations`, không "thấm" xuống filter từng con) — thiếu rule ở nhánh
+  cha thì `orderByChild('retailerId').equalTo(uid)` bị permission_denied dù
+  rule ở `$stationId` đúng. Rule ở `$stationId` chỉ áp dụng khi đọc trực tiếp
+  1 station theo đúng key.
+- `alerts`: mỗi alert lưu sẵn `retailerId` (đại lý đang giữ lô lúc cảnh báo
+  phát sinh) và `growerId` (chủ vườn của lô đó) — denormalize từ lô liên quan
+  tại thời điểm tạo, không tra chéo sang `lots` mỗi lần đọc. Đọc DANH SÁCH chỉ
+  được phép khi query đúng `orderByChild('retailerId'|'growerId').equalTo(auth.uid)`
+  — khớp `useAlerts(role, uid)`: đại lý lọc theo `retailerId` (kho của mình),
+  chủ vườn lọc theo `growerId` (lô mình gửi đi). Ghi (tạo/sửa alert) chỉ đại
+  lý liên quan làm được — chủ vườn chỉ đọc, không ghi.
 - `app/(retailer)/scan.tsx` mô phỏng "vừa quét được" bằng cách lấy lô đầu
   tiên có status `in_transit` từ danh sách toàn bộ — cũng không còn đọc được
   ở chế độ Firebase thật vì cùng lý do trên. Cần đổi sang nhập/tra đúng 1 mã

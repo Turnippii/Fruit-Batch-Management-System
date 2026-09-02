@@ -4,6 +4,7 @@ import { FRUIT_TYPE_LABELS } from '../constants/strings';
 import type { Lot } from '../mocks/lots';
 import { assumedTemp as defaultAssumedTemp } from '../mocks/config';
 import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../lib/shelfLife';
+import { getHolderRole } from '../lib/lotHolder';
 import { useConfig } from '../hooks/useConfig';
 import { useStationTemp } from '../hooks/useStationTemp';
 import { StatusBadge } from './StatusBadge';
@@ -15,7 +16,7 @@ interface LotListItemProps {
 
 export function LotListItem({ lot, onPress }: LotListItemProps) {
   const { config } = useConfig();
-  const { station } = useStationTemp(lot.currentHolderId);
+  const { station } = useStationTemp(lot.currentHolderId, getHolderRole(lot.status));
   const consumedRatio = resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, new Date());
   const remainingRatio = getRemainingRatio(consumedRatio);
   const statusColor = statusColorHex[getStatusColor(remainingRatio)];

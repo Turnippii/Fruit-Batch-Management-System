@@ -21,6 +21,7 @@
 
     "stations": {
       ".indexOn": ["retailerId"],
+      ".read": "auth != null && query.orderByChild === 'retailerId' && query.equalTo === auth.uid",
       "$stationId": {
         ".read": "auth != null && data.child('retailerId').val() === auth.uid",
         "temp": { ".write": "auth != null" },
@@ -30,9 +31,11 @@
     },
 
     "alerts": {
+      ".indexOn": ["retailerId", "growerId"],
+      ".read": "auth != null && ((query.orderByChild === 'retailerId' && query.equalTo === auth.uid) || (query.orderByChild === 'growerId' && query.equalTo === auth.uid))",
       "$alertId": {
-        ".read": "auth != null && root.child('lots').child(data.child('lotId').val()).child('currentHolderId').val() === auth.uid",
-        ".write": "auth != null && root.child('lots').child(newData.child('lotId').val()).child('currentHolderId').val() === auth.uid"
+        ".read": "auth != null && (data.child('retailerId').val() === auth.uid || data.child('growerId').val() === auth.uid)",
+        ".write": "auth != null && ((data.exists() && data.child('retailerId').val() === auth.uid) || (newData.exists() && newData.child('retailerId').val() === auth.uid))"
       }
     },
 

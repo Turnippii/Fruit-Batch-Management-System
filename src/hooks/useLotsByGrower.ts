@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { USE_MOCK } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { useLots } from '../state/LotsContext';
 import { subscribeLotsByGrower } from '../services/lots';
+import { isPermissionDeniedError } from '../lib/firebaseErrors';
 import type { Lot } from '../mocks/lots';
 
 interface UseLotsByGrowerResult {
@@ -12,6 +14,7 @@ interface UseLotsByGrowerResult {
 
 /** Lô của một chủ vườn — query theo growerId thay vì lọc từ toàn bộ danh sách lô. */
 export function useLotsByGrower(growerId: string | undefined): UseLotsByGrowerResult {
+  const { loading: authLoading, profile } = useAuth();
   const { lots: allLots } = useLots();
   const [firebaseLots, setFirebaseLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(!USE_MOCK && !!growerId);
@@ -24,6 +27,10 @@ export function useLotsByGrower(growerId: string | undefined): UseLotsByGrowerRe
       setLoading(false);
       return;
     }
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
     setLoading(true);
     const unsubscribe = subscribeLotsByGrower(
       growerId,
@@ -33,12 +40,16 @@ export function useLotsByGrower(growerId: string | undefined): UseLotsByGrowerRe
         setError(null);
       },
       (err) => {
+        if (isPermissionDeniedError(err)) {
+          setLoading(true);
+          return;
+        }
         setError(err.message);
         setLoading(false);
       }
     );
     return unsubscribe;
-  }, [growerId]);
+  }, [growerId, authLoading, profile?.uid]);
 
   if (USE_MOCK) {
     return { lots: allLots.filter((lot) => lot.growerId === growerId), loading: false, error: null };
