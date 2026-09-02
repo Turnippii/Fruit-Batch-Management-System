@@ -1,0 +1,233 @@
+export const FRUIT_TYPE_LABELS: Record<string, string> = {
+  Chuoi: 'Chuối',
+  Xoai: 'Xoài',
+  Tao: 'Táo',
+  Nho: 'Nho',
+  Dau: 'Dâu',
+};
+
+// Nhãn model AI, đặt tên theo đúng assets/model/labels.txt (thứ tự alphabet, không phải thứ tự chín).
+export const RIPENESS_LABELS: Record<string, string> = {
+  Chuoi_chin_ky: 'Chín kỹ',
+  Chuoi_chin_toi: 'Chín tới',
+  Chuoi_hong: 'Hỏng',
+  Chuoi_xanh: 'Xanh',
+  Xoai_chin_toi: 'Chín tới',
+  Xoai_hong: 'Hỏng',
+  Xoai_xanh: 'Xanh',
+  Chin_toi: 'Chín tới',
+};
+
+// Thứ tự chip hiển thị cho người dùng chọn thủ công (thứ tự độ chín thật, không phải alphabet của model).
+export const RIPENESS_CHIPS_BY_FRUIT: Record<string, string[]> = {
+  Chuoi: ['Chuoi_xanh', 'Chuoi_chin_toi', 'Chuoi_chin_ky', 'Chuoi_hong'],
+  Xoai: ['Xoai_xanh', 'Xoai_chin_toi', 'Xoai_hong'],
+};
+
+// Lựa chọn dùng riêng cho bottom sheet "Sửa" độ chín — chỉ các trạng thái lành (không có Hỏng).
+export const RIPENESS_SHEET_OPTIONS_BY_FRUIT: Record<string, string[]> = {
+  Chuoi: ['Chuoi_xanh', 'Chuoi_chin_toi', 'Chuoi_chin_ky'],
+  Xoai: ['Xoai_xanh', 'Xoai_chin_toi'],
+};
+
+export const STORAGE_TYPE_LABELS: Record<string, string> = {
+  lanh: 'Kho lạnh',
+  thuong: 'Nhiệt độ thường',
+};
+
+export const SHELF_STAGE_LABELS: Record<string, string> = {
+  at_garden: 'Tại vườn',
+  in_transit: 'Vận chuyển',
+  in_stock: 'Kho đại lý',
+};
+
+export const LOT_STATUS_LABELS: Record<string, string> = {
+  at_garden: 'Tại vườn',
+  in_transit: 'Đang vận chuyển',
+  in_stock: 'Trong kho',
+  sold: 'Đã bán',
+  discarded: 'Đã loại bỏ',
+};
+
+export const ALERT_LEVEL_LABELS: Record<string, string> = {
+  green: 'Ổn định',
+  yellow: 'Cần chú ý',
+  red: 'Khẩn cấp',
+};
+
+export const HISTORY_EVENT_LABELS: Record<string, string> = {
+  harvested: 'Thu hoạch tại vườn',
+  qr_generated: 'Tạo mã QR',
+  shipped: 'Xuất kho vận chuyển',
+  received: 'Đại lý tiếp nhận',
+  in_stock: 'Nhập kho đại lý',
+  sold: 'Đã bán',
+  discarded: 'Đã loại bỏ',
+  edited: 'Cập nhật thông tin lô',
+};
+
+export const strings = {
+  common: {
+    appName: 'FruitTrace',
+    continue: 'Tiếp tục',
+    save: 'Lưu thay đổi',
+    cancel: 'Hủy',
+    edit: 'Sửa',
+    delete: 'Xóa',
+    viewDetail: 'Xem chi tiết',
+    viewAll: 'Xem tất cả',
+    unitKg: 'kg',
+    days: 'ngày',
+    search: 'Tìm kiếm',
+    all: 'Tất cả',
+    confirm: 'Xác nhận',
+  },
+  auth: {
+    title: 'Đăng nhập',
+    subtitle: 'Quản lý lô trái cây từ vườn đến đại lý',
+    emailLabel: 'Email',
+    emailPlaceholder: 'ban@vidu.com',
+    passwordLabel: 'Mật khẩu',
+    passwordPlaceholder: 'Nhập mật khẩu',
+    confirmPasswordLabel: 'Nhập lại mật khẩu',
+    nameLabel: 'Họ tên',
+    namePlaceholder: 'Nguyễn Văn A',
+    orgNameLabelGrower: 'Tên vườn',
+    orgNameLabelRetailer: 'Tên đại lý',
+    roleLabel: 'Bạn là',
+    roleGrower: 'Chủ vườn',
+    roleGrowerDesc: 'Tạo lô hàng, dán mã QR',
+    roleRetailer: 'Đại lý',
+    roleRetailerDesc: 'Quét mã, theo dõi kho',
+    submit: 'Đăng nhập',
+    registerTitle: 'Tạo tài khoản',
+    registerSubmit: 'Đăng ký',
+    noAccount: 'Chưa có tài khoản?',
+    haveAccount: 'Đã có tài khoản?',
+    goRegister: 'Đăng ký',
+    goLogin: 'Đăng nhập',
+    errorEmailInvalid: 'Email không hợp lệ',
+    errorPasswordTooShort: 'Mật khẩu cần ít nhất 6 ký tự',
+    errorPasswordMismatch: 'Mật khẩu nhập lại không khớp',
+    errorNameRequired: 'Vui lòng nhập họ tên',
+    errorOrgRequired: 'Vui lòng nhập tên vườn/đại lý',
+    errorRoleRequired: 'Vui lòng chọn vai trò',
+  },
+  growerHome: {
+    greeting: 'Xin chào',
+    statManaging: 'Lô đang quản lý',
+    statExpiringSoon: 'Lô sắp hết hạn',
+    createLot: 'Tạo lô hàng mới',
+    recentLots: 'Lô gần đây',
+  },
+  capture: {
+    title: 'Chụp ảnh & nhận diện',
+    previewPlaceholder: 'Xem trước ảnh lô hàng',
+    captureButton: 'Chụp ảnh',
+    retake: 'Chụp lại',
+    classifying: 'Đang nhận diện...',
+    aiResultTitle: 'Kết quả nhận diện AI',
+    confidence: 'Độ tin cậy',
+    ripenessTitle: 'Độ chín',
+    lowConfidenceNotice: 'Không nhận diện được, vui lòng chọn loại quả',
+    spoiledWarning: 'Lô hàng đã hỏng, không thể nhập kho',
+    manualPickTitle: 'Chọn thủ công',
+    manualFruitLabel: 'Loại trái cây',
+    manualRipenessLabel: 'Độ chín',
+    demoModeLabel: 'Chế độ demo (chọn kịch bản nhận diện)',
+    demoRandom: 'Ngẫu nhiên',
+    demoHigh: 'Tin cậy cao',
+    demoLow: 'Tin cậy thấp',
+    demoSpoiled: 'Hỏng',
+    bottomSheetTitle: 'Chọn độ chín',
+  },
+  lotForm: {
+    title: 'Thông tin lô & mã QR',
+    fruitType: 'Loại trái cây',
+    ripeness: 'Độ chín',
+    harvestDate: 'Ngày thu hoạch',
+    quantity: 'Khối lượng',
+    storageType: 'Cách bảo quản',
+    gardenName: 'Tên vườn',
+    shelfLifeResultTitle: 'Kết quả hạn sử dụng',
+    initialShelfDays: 'Hạn sử dụng ban đầu',
+    estimatedExpiry: 'Dự kiến hết hạn',
+    qrTitle: 'Mã QR lô hàng',
+    printQr: 'In tem QR dán lên thùng',
+  },
+  retailerHome: {
+    title: 'Kho đại lý',
+    countGreen: 'Còn tươi',
+    countYellow: 'Ưu tiên bán',
+    countRed: 'Quá hạn',
+    stationTemp: 'Nhiệt độ kho',
+    stationHumid: 'Độ ẩm',
+    lotListTitle: 'Danh sách lô trong kho',
+    daysLeft: 'còn lại',
+  },
+  scan: {
+    title: 'Quét mã QR',
+    scanPlaceholder: 'Đưa mã QR vào khung hình',
+    scannedCodeTitle: 'Đã quét được mã',
+    receiveLot: 'Nhận lô vào kho',
+    viewDetail: 'Xem chi tiết',
+  },
+  lotDetail: {
+    title: 'Chi tiết lô',
+    countdownTitle: 'Thời gian còn lại',
+    consumedProgress: 'Vòng đời đã tiêu hao',
+    infoTitle: 'Thông tin lô',
+    fruitType: 'Loại trái cây',
+    ripeness: 'Độ chín',
+    quantity: 'Khối lượng',
+    gardenName: 'Vườn xuất xứ',
+    noteTitle: 'Ghi chú rút hạn',
+    tempSourceTitle: 'Nguồn nhiệt độ',
+    tempSourceAssumed: 'ước lượng',
+    tempSourceMeasured: 'cảm biến',
+    traceButton: 'Truy xuất nguồn gốc',
+    editButton: 'Sửa lô',
+    deleteButton: 'Xóa lô',
+    deleteConfirmTitle: 'Xóa lô hàng?',
+    deleteConfirmMessage: 'Thao tác này không thể hoàn tác.',
+    deleteNotAllowed: 'Chỉ có thể xóa lô còn ở vườn (chưa xuất kho)',
+  },
+  lotEdit: {
+    title: 'Sửa thông tin lô',
+    quantity: 'Khối lượng',
+    storageType: 'Cách bảo quản',
+    note: 'Ghi chú',
+    notePlaceholder: 'Ghi chú thêm về lô hàng...',
+    lockedNote: 'Ngày thu hoạch và loại quả không thể sửa sau khi tạo lô',
+    saved: 'Đã lưu thay đổi',
+  },
+  lotAll: {
+    title: 'Tất cả lô hàng',
+    searchPlaceholder: 'Tìm theo mã lô hoặc tên vườn',
+    emptyResult: 'Không tìm thấy lô nào phù hợp',
+  },
+  alerts: {
+    title: 'Cảnh báo & truy xuất',
+    alertsTitle: 'Danh sách cảnh báo',
+    traceTitle: 'Dòng thời gian truy xuất',
+    exportReport: 'Xuất báo cáo',
+  },
+  account: {
+    title: 'Tài khoản',
+    roleLabel: 'Vai trò',
+    orgLabelGrower: 'Tên vườn',
+    orgLabelRetailer: 'Tên đại lý',
+    emailLabel: 'Email',
+    logout: 'Đăng xuất',
+    logoutConfirmTitle: 'Đăng xuất?',
+    logoutConfirmMessage: 'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng.',
+  },
+  tabs: {
+    growerHome: 'Trang chủ',
+    growerCreate: 'Tạo lô',
+    alerts: 'Cảnh báo',
+    account: 'Tài khoản',
+    retailerHome: 'Kho',
+    scan: 'Quét QR',
+  },
+} as const;

@@ -40,7 +40,9 @@ chạy được vì camera và TFLite là native module.
 users/{uid}              role: "grower" | "retailer", name, orgName
 lots/{lotId}             fruitType, ripeness, harvestDate, quantity, unit,
                          storageType, gardenName, initialShelfDays,
-                         consumedRatio, expiryDate, status, growerId,
+                         consumedRatio (null khi at_garden/in_transit),
+                         updatedAt (mốc ghi consumedRatio gần nhất),
+                         expiryDate, status, growerId,
                          currentHolderId, imageUrl, createdAt
 lots/{lotId}/history     [{ event, timestamp, actorId, note }]
 stations/{stationId}     temp, humid, updatedAt, retailerId
@@ -48,6 +50,7 @@ alerts/{alertId}         lotId, level: "green"|"yellow"|"red", type, createdAt, 
 config/ripenessFactor    hệ số độ chín theo loại quả và trạng thái
 config/shelfLifeBase     T0 theo loại quả, lấy từ USDA FoodKeeper
 config/ripenessSupported ["Chuoi", "Xoai"]
+config/assumedTemp       nhiệt độ giả định chặng at_garden/in_transit (xem Quy tắc nghiệp vụ)
 ```
 
 `status` của lô: `at_garden` → `in_transit` → `in_stock` → `sold` | `discarded`
@@ -64,6 +67,50 @@ hạn sử dụng thay đổi theo thời gian và nhiệt độ. Quét QR → l
 remainingRatio = 1 - consumedRatio
 remainingDays  = remainingRatio * initialShelfDays
 ```
+
+**`consumedRatio` LUÔN tích lũy từ `harvestDate`, không có chặng nào được coi là
+"chưa tiêu hao".** Trái cây hao mòn cả khi còn ở vườn và khi đang vận chuyển,
+chỉ khác nguồn nhiệt độ dùng để tính từng chặng:
+
+| Chặng | Từ — đến | Nguồn nhiệt độ |
+|---|---|---|
+| `at_garden` | `harvestDate` → lúc xuất kho | `config/assumedTemp.at_garden_normal` (30°C) hoặc `.at_garden_cold` (15°C) nếu `storageType = "lanh"` |
+| `in_transit` | lúc xuất kho → lúc đại lý nhận | `config/assumedTemp.in_transit` (32°C) hoặc `.in_transit_cold` (18°C) nếu `storageType = "lanh"` |
+| `in_stock` | lúc đại lý nhận → hiện tại | nhiệt độ đo thật từ `stations/{stationId}` |
+
+Mỗi chặng cộng dồn theo công thức:
+
+```
+consumedRatio += (dt/24) * 2^((T-25)/10) / initialShelfDays
+```
+
+trong đó `dt` tính bằng giờ, `T` là nhiệt độ (giả định hoặc đo thật) của chặng đó.
+
+**Nguồn sự thật của `consumedRatio` khác nhau theo `status`, và KHÔNG màn hình
+nào được đọc `lot.consumedRatio` trực tiếp — luôn gọi `resolveConsumedRatio(lot,
+config, stationTemp, now)` trong `src/lib/shelfLife.ts`:**
+
+- `at_garden` / `in_transit`: field `consumedRatio` trong dữ liệu luôn là `null`.
+  App bỏ qua nó, tự tính tại chỗ từ `harvestDate` bằng
+  `getConsumedRatioBreakdown` + `getTotalConsumedRatio`.
+- `in_stock`: đọc `consumedRatio` đã lưu (do ESP32 ghi định kỳ), cộng thêm phần
+  tiêu hao trôi qua từ `updatedAt` đến hiện tại bằng nhiệt độ cảm biến gần nhất
+  (`getStageConsumedRatio(updatedAt, now, stationTemp, initialShelfDays)`).
+  Thiếu `updatedAt` hoặc chưa có nhiệt độ cảm biến thì trả nguyên giá trị đã lưu,
+  không cộng dồn.
+- `sold` / `discarded`: lô đã rời khỏi kho, KHÔNG còn cộng drift theo nhiệt độ
+  kho nữa — trả nguyên `consumedRatio` đã lưu tại thời điểm đó, đứng yên vĩnh
+  viễn. Nhầm nhánh này với `in_stock` sẽ khiến lô đã bán vẫn tiếp tục "hết hạn"
+  trên giấy tờ dù không còn nằm trong kho.
+- **Thời điểm đại lý quét nhận lô** (`at_garden`/`in_transit` → `in_stock`): app
+  tính một lần toàn bộ phần `at_garden` + `in_transit` bằng
+  `getTotalConsumedRatio(getConsumedRatioBreakdown(...))` rồi GHI kết quả đó
+  vào `consumedRatio` làm giá trị khởi đầu, kèm `updatedAt` = thời điểm nhận.
+  Từ đây nguồn sự thật chuyển hẳn sang giá trị lưu (nhánh `in_stock` ở trên).
+
+Màn chi tiết lô hiển thị rõ từng chặng dùng nhiệt độ giả định hay cảm biến
+thật ở thẻ "Nguồn nhiệt độ" (`getConsumedRatioBreakdown`, độc lập với
+`resolveConsumedRatio`), để người dùng không hiểu lầm số liệu là đo được 100%.
 
 **Ngưỡng màu tính theo phần trăm vòng đời còn lại**, không theo số ngày tuyệt đối:
 
@@ -136,6 +183,10 @@ border       #D6E5D4   viền
 - Gọi Firebase trong vòng lặp đếm ngược
 - Dùng `expo-barcode-scanner` (đã khai tử)
 - Hardcode hệ số độ chín trong code, phải đọc từ `config/`
+- Coi `consumedRatio = 0` khi lô còn ở `at_garden`/`in_transit` — luôn tính tiêu hao
+  từ `harvestDate`, chỉ đổi nguồn nhiệt độ theo chặng
+- Đọc `lot.consumedRatio` trực tiếp ở màn hình/component — luôn qua
+  `resolveConsumedRatio()`, nguồn tính khác nhau tuỳ `status`
 
   ## Lưu ý môi trường
 - Expo SDK 57, package name com.liam0412steam.fruitbatchmanagementsystem
