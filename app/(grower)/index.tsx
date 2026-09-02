@@ -7,8 +7,8 @@ import { StatCard } from '../../src/components/StatCard';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { LotListItem } from '../../src/components/LotListItem';
 import { AsyncState } from '../../src/components/AsyncState';
-import { useLots } from '../../src/state/LotsContext';
 import { useAuth } from '../../src/context/AuthContext';
+import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
 import { useConfig } from '../../src/hooks/useConfig';
 import { getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
 
@@ -17,7 +17,7 @@ const RECENT_LOTS_LIMIT = 4;
 export default function GrowerHomeScreen() {
   const router = useRouter();
   const { profile } = useAuth();
-  const { lots, loading, error } = useLots();
+  const { lots, loading, error } = useLotsByGrower(profile?.uid);
   const { config } = useConfig();
 
   const recentLots = [...lots]

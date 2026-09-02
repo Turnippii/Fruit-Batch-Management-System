@@ -1,13 +1,18 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { USE_MOCK } from '../config';
 import { mockLots, Lot } from '../mocks/lots';
 import * as lotsService from '../services/lots';
 
 interface LotsContextValue {
+  /**
+   * Chỉ có dữ liệu ở chế độ mock. Ở chế độ Firebase thật, KHÔNG có subscribe
+   * toàn bộ lots/ nữa — database.rules.json chỉ cho đọc list khi query lọc
+   * đúng growerId/currentHolderId = uid của mình (xem useLotsByGrower,
+   * useLotsByHolder, useLotById), một listen không lọc sẽ bị permission-denied.
+   */
   lots: Lot[];
   loading: boolean;
   error: string | null;
-  getLotById: (id: string) => Lot | undefined;
   addLot: (lot: Lot) => Promise<void>;
   updateLot: (id: string, patch: Partial<Lot>) => Promise<void>;
   deleteLot: (id: string) => Promise<void>;
@@ -17,31 +22,12 @@ const LotsContext = createContext<LotsContextValue | null>(null);
 
 export function LotsProvider({ children }: { children: React.ReactNode }) {
   const [lots, setLots] = useState<Lot[]>(() => (USE_MOCK ? mockLots.map((lot) => ({ ...lot })) : []));
-  const [loading, setLoading] = useState(!USE_MOCK);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (USE_MOCK) return;
-    const unsubscribe = lotsService.subscribeAllLots(
-      (nextLots) => {
-        setLots(nextLots);
-        setLoading(false);
-        setError(null);
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
-      }
-    );
-    return unsubscribe;
-  }, []);
 
   const value = useMemo<LotsContextValue>(
     () => ({
       lots,
-      loading,
-      error,
-      getLotById: (id) => lots.find((lot) => lot.id === id),
+      loading: false,
+      error: null,
       async addLot(lot) {
         if (USE_MOCK) {
           setLots((prev) => [lot, ...prev]);
@@ -64,7 +50,7 @@ export function LotsProvider({ children }: { children: React.ReactNode }) {
         await lotsService.deleteLot(id);
       },
     }),
-    [lots, loading, error]
+    [lots]
   );
 
   return <LotsContext.Provider value={value}>{children}</LotsContext.Provider>;

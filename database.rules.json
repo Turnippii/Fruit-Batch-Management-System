@@ -1,0 +1,44 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "lots": {
+      ".indexOn": ["currentHolderId", "growerId"],
+      ".read": "auth != null && ((query.orderByChild === 'growerId' && query.equalTo === auth.uid) || (query.orderByChild === 'currentHolderId' && query.equalTo === auth.uid))",
+      "$lotId": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((data.exists() && data.child('growerId').val() === auth.uid) || (data.exists() && data.child('currentHolderId').val() === auth.uid) || (newData.exists() && newData.child('growerId').val() === auth.uid) || (newData.exists() && newData.child('currentHolderId').val() === auth.uid))"
+      }
+    },
+
+    "stations": {
+      ".indexOn": ["retailerId"],
+      "$stationId": {
+        ".read": "auth != null && data.child('retailerId').val() === auth.uid",
+        "temp": { ".write": "auth != null" },
+        "humid": { ".write": "auth != null" },
+        "updatedAt": { ".write": "auth != null" }
+      }
+    },
+
+    "alerts": {
+      "$alertId": {
+        ".read": "auth != null && root.child('lots').child(data.child('lotId').val()).child('currentHolderId').val() === auth.uid",
+        ".write": "auth != null && root.child('lots').child(newData.child('lotId').val()).child('currentHolderId').val() === auth.uid"
+      }
+    },
+
+    "config": {
+      ".read": "auth != null",
+      ".write": false
+    }
+  }
+}

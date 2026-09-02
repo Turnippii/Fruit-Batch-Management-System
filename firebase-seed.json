@@ -1,11 +1,11 @@
 {
   "users": {
-    "7SJfz1zsm0NaUT0pue7p4MjQSLC2": {
+    "pJr4U8VX4BV2hhZQHpkZHNes4Om2": {
       "role": "grower",
       "name": "Chủ vườn",
       "orgName": "Vườn Xoài Cát Hòa Lộc"
     },
-    "pJr4U8VX4BV2hhZQHpkZHNes4Om2": {
+    "7SJfz1zsm0NaUT0pue7p4MjQSLC2": {
       "role": "retailer",
       "name": "Nhân viên đại lý",
       "orgName": "Kho đại lý Bình Thạnh"
@@ -24,15 +24,15 @@
       "consumedRatio": 0.15,
       "updatedAt": "2026-09-01T08:00:00.000Z",
       "status": "in_stock",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
       "createdAt": "2026-08-28T02:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-28T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-28T03:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-A7X92K" },
-        { "event": "shipped", "timestamp": "2026-08-28T06:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
-        { "event": "received", "timestamp": "2026-08-29T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
-        { "event": "in_stock", "timestamp": "2026-08-29T01:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho đại lý" }
+        { "event": "harvested", "timestamp": "2026-08-28T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-28T03:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-A7X92K" },
+        { "event": "shipped", "timestamp": "2026-08-28T06:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-29T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-29T01:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Nhập kho đại lý" }
       ]
     },
     "FC-2026-B3M18P": {
@@ -47,15 +47,15 @@
       "consumedRatio": 0.65,
       "updatedAt": "2026-09-01T08:00:00.000Z",
       "status": "in_stock",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
       "createdAt": "2026-08-27T01:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-27T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-27T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-B3M18P" },
-        { "event": "shipped", "timestamp": "2026-08-27T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
-        { "event": "received", "timestamp": "2026-08-28T00:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
-        { "event": "in_stock", "timestamp": "2026-08-28T00:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, nhiệt độ kho tăng nhẹ" }
+        { "event": "harvested", "timestamp": "2026-08-27T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-27T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-B3M18P" },
+        { "event": "shipped", "timestamp": "2026-08-27T05:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-28T00:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-28T00:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Nhập kho, nhiệt độ kho tăng nhẹ" }
       ]
     },
     "FC-2026-C9Q54R": {
@@ -70,15 +70,15 @@
       "consumedRatio": 0.85,
       "updatedAt": "2026-09-01T08:00:00.000Z",
       "status": "in_stock",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
       "createdAt": "2026-08-26T01:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-26T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-26T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-C9Q54R" },
-        { "event": "shipped", "timestamp": "2026-08-26T04:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
-        { "event": "received", "timestamp": "2026-08-26T20:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
-        { "event": "in_stock", "timestamp": "2026-08-26T20:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, cảnh báo sắp hết hạn" }
+        { "event": "harvested", "timestamp": "2026-08-26T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-26T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-C9Q54R" },
+        { "event": "shipped", "timestamp": "2026-08-26T04:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-26T20:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-26T20:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Nhập kho, cảnh báo sắp hết hạn" }
       ]
     },
     "FC-2026-D2N77T": {
@@ -93,15 +93,15 @@
       "consumedRatio": 0.3,
       "updatedAt": "2026-09-01T08:00:00.000Z",
       "status": "in_stock",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
       "createdAt": "2026-08-20T01:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-20T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-20T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-D2N77T" },
-        { "event": "shipped", "timestamp": "2026-08-20T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
-        { "event": "received", "timestamp": "2026-08-21T00:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
-        { "event": "in_stock", "timestamp": "2026-08-21T00:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho đại lý" }
+        { "event": "harvested", "timestamp": "2026-08-20T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-20T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-D2N77T" },
+        { "event": "shipped", "timestamp": "2026-08-20T05:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-21T00:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-21T00:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Nhập kho đại lý" }
       ]
     },
     "FC-2026-E5K33W": {
@@ -116,15 +116,15 @@
       "consumedRatio": 0.95,
       "updatedAt": "2026-09-01T08:00:00.000Z",
       "status": "in_stock",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
       "createdAt": "2026-08-25T01:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-25T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-25T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-E5K33W" },
-        { "event": "shipped", "timestamp": "2026-08-25T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
-        { "event": "received", "timestamp": "2026-08-25T22:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
-        { "event": "in_stock", "timestamp": "2026-08-25T22:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, gần hết hạn sử dụng" }
+        { "event": "harvested", "timestamp": "2026-08-25T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-25T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-E5K33W" },
+        { "event": "shipped", "timestamp": "2026-08-25T05:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-25T22:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-25T22:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Nhập kho, gần hết hạn sử dụng" }
       ]
     },
     "FC-2026-F1H60Y": {
@@ -138,13 +138,13 @@
       "initialShelfDays": 9,
       "consumedRatio": null,
       "status": "in_transit",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
       "createdAt": "2026-08-31T02:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-08-31T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-08-31T03:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-F1H60Y" },
-        { "event": "shipped", "timestamp": "2026-08-31T06:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" }
+        { "event": "harvested", "timestamp": "2026-08-31T02:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-31T03:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-F1H60Y" },
+        { "event": "shipped", "timestamp": "2026-08-31T06:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Xuất kho vận chuyển" }
       ]
     },
     "FC-2026-G8J41L": {
@@ -158,12 +158,12 @@
       "initialShelfDays": 6,
       "consumedRatio": null,
       "status": "at_garden",
-      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
-      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "growerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
       "createdAt": "2026-09-01T01:00:00.000Z",
       "history": [
-        { "event": "harvested", "timestamp": "2026-09-01T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
-        { "event": "qr_generated", "timestamp": "2026-09-01T01:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-G8J41L" }
+        { "event": "harvested", "timestamp": "2026-09-01T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-09-01T01:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Tạo mã QR FC-2026-G8J41L" }
       ]
     }
   },
@@ -173,7 +173,7 @@
       "temp": 29.0,
       "humid": 75,
       "updatedAt": "2026-09-01T08:00:00.000Z",
-      "retailerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2"
+      "retailerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2"
     }
   },
   "alerts": {

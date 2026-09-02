@@ -68,8 +68,9 @@ Kiến trúc 3 lớp, không màn hình nào gọi Firebase SDK trực tiếp:
   luôn gọi `getFirebaseAuth()/getFirebaseDatabase()` bên trong hàm — KHÔNG
   import `auth`/`database` như hằng số ở đầu file (sẽ ép khởi tạo sớm).
 - `src/hooks/` — bọc service thành hook React (`useConfig`, `useStationTemp`,
-  `useLotById`, `useLotsByHolder`, `useAlerts`), tự hủy listener trong cleanup
-  của `useEffect`, tự chuyển sang dữ liệu giả khi `USE_MOCK = true`.
+  `useLotById`, `useLotsByHolder`, `useLotsByGrower`, `useAlerts`), tự hủy
+  listener trong cleanup của `useEffect`, tự chuyển sang dữ liệu giả khi
+  `USE_MOCK = true`.
 - `src/context/AuthContext.tsx` (qua `useAuth`) và `src/state/LotsContext.tsx`
   (qua `useLots`) — 2 context toàn app, cùng cơ chế chuyển mock/thật.
 
@@ -89,6 +90,32 @@ trong code app.
 `firebase-seed.json` ở gốc repo là dữ liệu mẫu để import thủ công vào Realtime
 Database qua Firebase Console (Import JSON) — khớp đúng cấu trúc ở trên, dùng
 UID Auth thật thay cho 2 tài khoản test.
+
+**`database.rules.json` ở gốc repo — dán trực tiếp vào Console (Realtime
+Database → Rules).** Phân quyền theo đúng vai trò, hệ quả quan trọng cho cách
+đọc dữ liệu:
+
+- `lots`: đọc theo DANH SÁCH (list/query không lọc) CHỈ được phép khi query
+  đúng `orderByChild('growerId'|'currentHolderId').equalTo(auth.uid)` — khớp
+  `useLotsByGrower`/`useLotsByHolder`. KHÔNG còn cách nào "đọc toàn bộ lots/"
+  qua rules này — `src/state/LotsContext.tsx` vì vậy KHÔNG tự subscribe toàn
+  bộ `lots/` ở chế độ Firebase thật nữa (chỉ giữ 3 hàm CRUD ghi), mọi màn cần
+  danh sách phải dùng `useLotsByGrower`/`useLotsByHolder`.
+- `lots/$lotId`: đọc TRỰC TIẾP một lô theo đúng mã thì mở cho mọi user đã đăng
+  nhập — khớp đúng thiết kế "mã QR chỉ chứa mã lô, quét QR → tra Firebase":
+  biết đúng mã coi như đã có quyền tra cứu, không cần là grower/retailer của
+  lô đó. Dùng cho `useLotById`.
+- `alerts`: đọc/ghi một alert cụ thể được xác nhận bằng cách tra chéo sang
+  `lots/{alert.lotId}/currentHolderId` — nhưng KHÔNG có rule nào cho phép
+  liệt kê toàn bộ `alerts/` (không có field nào lọc trực tiếp theo đại lý).
+  `src/hooks/useAlerts.ts` hiện vẫn gọi `subscribeAlerts()` (liệt kê toàn bộ)
+  nên sẽ permission-denied ở chế độ Firebase thật — cần đổi cấu trúc dữ liệu
+  (ví dụ `alerts/{retailerId}/{alertId}`) hoặc đổi cách truy vấn trước khi
+  dùng thật, chưa làm trong milestone này.
+- `app/(retailer)/scan.tsx` mô phỏng "vừa quét được" bằng cách lấy lô đầu
+  tiên có status `in_transit` từ danh sách toàn bộ — cũng không còn đọc được
+  ở chế độ Firebase thật vì cùng lý do trên. Cần đổi sang nhập/tra đúng 1 mã
+  lô (khớp thiết kế QR ở trên) khi nối camera thật.
 
 ## Quy tắc nghiệp vụ
 

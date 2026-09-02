@@ -7,14 +7,16 @@ import { strings, LOT_STATUS_LABELS } from '../../src/constants/strings';
 import { Chip } from '../../src/components/Chip';
 import { LotListItem } from '../../src/components/LotListItem';
 import { AsyncState } from '../../src/components/AsyncState';
-import { useLots } from '../../src/state/LotsContext';
+import { useAuth } from '../../src/context/AuthContext';
+import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
 import type { LotStatus } from '../../src/mocks/lots';
 
 const STATUS_FILTERS: (LotStatus | 'all')[] = ['all', 'at_garden', 'in_transit', 'in_stock', 'sold', 'discarded'];
 
 export default function LotAllScreen() {
   const router = useRouter();
-  const { lots, loading, error } = useLots();
+  const { profile } = useAuth();
+  const { lots, loading, error } = useLotsByGrower(profile?.uid);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<LotStatus | 'all'>('all');
 
