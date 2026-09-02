@@ -7,8 +7,9 @@ import { SectionCard } from '../components/SectionCard';
 import { AlertCard } from '../components/AlertCard';
 import { TimelineItem } from '../components/TimelineItem';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { mockAlerts } from '../mocks/lots';
+import { AsyncState } from '../components/AsyncState';
 import { useLots } from '../state/LotsContext';
+import { useAlerts } from '../hooks/useAlerts';
 
 interface AlertsScreenProps {
   accentColor: string;
@@ -16,7 +17,8 @@ interface AlertsScreenProps {
 
 export function AlertsScreen({ accentColor }: AlertsScreenProps) {
   const router = useRouter();
-  const { lots } = useLots();
+  const { lots, loading: lotsLoading, error: lotsError } = useLots();
+  const { alerts, loading: alertsLoading, error: alertsError } = useAlerts();
   const { lotId } = useLocalSearchParams<{ lotId?: string }>();
   const traceLot = lots.find((lot) => lot.id === lotId) ?? lots[0];
 
@@ -28,18 +30,25 @@ export function AlertsScreen({ accentColor }: AlertsScreenProps) {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.sectionTitle}>{strings.alerts.alertsTitle}</Text>
-        <View style={styles.alertList}>
-          {mockAlerts.map((alert) => (
-            <AlertCard
-              key={alert.id}
-              level={alert.level}
-              message={alert.message}
-              createdAt={alert.createdAt}
-              lot={lots.find((lot) => lot.id === alert.lotId)}
-              onPress={() => goToLot(alert.lotId)}
-            />
-          ))}
-        </View>
+        <AsyncState
+          loading={alertsLoading || lotsLoading}
+          error={alertsError ?? lotsError}
+          isEmpty={alerts.length === 0}
+          emptyText={strings.alerts.emptyAlerts}
+        >
+          <View style={styles.alertList}>
+            {alerts.map((alert) => (
+              <AlertCard
+                key={alert.id}
+                level={alert.level}
+                message={alert.message}
+                createdAt={alert.createdAt}
+                lot={lots.find((lot) => lot.id === alert.lotId)}
+                onPress={() => goToLot(alert.lotId)}
+              />
+            ))}
+          </View>
+        </AsyncState>
 
         {traceLot && (
           <SectionCard title={`${strings.alerts.traceTitle} — ${traceLot.id}`} style={styles.traceCard}>

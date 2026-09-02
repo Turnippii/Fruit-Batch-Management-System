@@ -81,6 +81,10 @@ export const strings = {
     search: 'Tìm kiếm',
     all: 'Tất cả',
     confirm: 'Xác nhận',
+    loading: 'Đang tải...',
+    errorGeneric: 'Có lỗi xảy ra, vui lòng thử lại.',
+    retry: 'Thử lại',
+    emptyGeneric: 'Chưa có dữ liệu.',
   },
   auth: {
     title: 'Đăng nhập',
@@ -112,6 +116,7 @@ export const strings = {
     errorNameRequired: 'Vui lòng nhập họ tên',
     errorOrgRequired: 'Vui lòng nhập tên vườn/đại lý',
     errorRoleRequired: 'Vui lòng chọn vai trò',
+    mockHint: 'Chế độ demo: grower@fruittrace.dev hoặc retailer@fruittrace.dev, mật khẩu bất kỳ.',
   },
   growerHome: {
     greeting: 'Xin chào',
@@ -191,6 +196,7 @@ export const strings = {
     deleteConfirmTitle: 'Xóa lô hàng?',
     deleteConfirmMessage: 'Thao tác này không thể hoàn tác.',
     deleteNotAllowed: 'Chỉ có thể xóa lô còn ở vườn (chưa xuất kho)',
+    notFound: 'Không tìm thấy lô hàng này.',
   },
   lotEdit: {
     title: 'Sửa thông tin lô',
@@ -211,6 +217,7 @@ export const strings = {
     alertsTitle: 'Danh sách cảnh báo',
     traceTitle: 'Dòng thời gian truy xuất',
     exportReport: 'Xuất báo cáo',
+    emptyAlerts: 'Chưa có cảnh báo nào.',
   },
   account: {
     title: 'Tài khoản',

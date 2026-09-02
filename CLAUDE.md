@@ -16,8 +16,9 @@ thông tin lô, hệ thống tính hạn sử dụng, sinh mã QR để dán lê
 **Đại lý (retailer)** — quét QR lô nhận về, xem hồ sơ và đếm ngược thời gian thực,
 theo dõi kho theo màu trạng thái, nhận cảnh báo.
 
-Vai trò chọn lúc đăng nhập, lưu trong `users/{uid}/role`. Hai luồng màn hình tách
-biệt hoàn toàn.
+Vai trò chọn lúc đăng ký, lưu trong `users/{uid}/role`. Đăng nhập chỉ xác thực
+bằng email/mật khẩu rồi đọc lại role từ đó — không hỏi lại vai trò mỗi lần đăng
+nhập. Hai luồng màn hình tách biệt hoàn toàn.
 
 ## Ngăn xếp công nghệ
 
@@ -42,8 +43,7 @@ lots/{lotId}             fruitType, ripeness, harvestDate, quantity, unit,
                          storageType, gardenName, initialShelfDays,
                          consumedRatio (null khi at_garden/in_transit),
                          updatedAt (mốc ghi consumedRatio gần nhất),
-                         expiryDate, status, growerId,
-                         currentHolderId, imageUrl, createdAt
+                         status, growerId, currentHolderId, imageUrl, createdAt
 lots/{lotId}/history     [{ event, timestamp, actorId, note }]
 stations/{stationId}     temp, humid, updatedAt, retailerId
 alerts/{alertId}         lotId, level: "green"|"yellow"|"red", type, createdAt, isRead
@@ -54,6 +54,41 @@ config/assumedTemp       nhiệt độ giả định chặng at_garden/in_transi
 ```
 
 `status` của lô: `at_garden` → `in_transit` → `in_stock` → `sold` | `discarded`
+
+## Kết nối Firebase
+
+Kiến trúc 3 lớp, không màn hình nào gọi Firebase SDK trực tiếp:
+
+- `src/services/` — duy nhất nơi gọi Firebase SDK. `firebase.ts` export
+  `getFirebaseAuth()`/`getFirebaseDatabase()` — khởi tạo TRỄ (app/auth với
+  persistence AsyncStorage/database), chỉ chạm Firebase ở lần gọi thật đầu
+  tiên, để `USE_MOCK = true` chạy được kể cả khi `.env` thiếu hoặc mất mạng.
+  `auth.ts`, `lots.ts`, `stations.ts`, `config.ts`, `alerts.ts` mỗi file bọc
+  một nhóm thao tác (CRUD, `onValue`/`get`, query `orderByChild`+`equalTo`),
+  luôn gọi `getFirebaseAuth()/getFirebaseDatabase()` bên trong hàm — KHÔNG
+  import `auth`/`database` như hằng số ở đầu file (sẽ ép khởi tạo sớm).
+- `src/hooks/` — bọc service thành hook React (`useConfig`, `useStationTemp`,
+  `useLotById`, `useLotsByHolder`, `useAlerts`), tự hủy listener trong cleanup
+  của `useEffect`, tự chuyển sang dữ liệu giả khi `USE_MOCK = true`.
+- `src/context/AuthContext.tsx` (qua `useAuth`) và `src/state/LotsContext.tsx`
+  (qua `useLots`) — 2 context toàn app, cùng cơ chế chuyển mock/thật.
+
+**`src/config.ts` — cờ `USE_MOCK`.** `true` = mọi hook/context trên đọc thẳng
+`src/mocks/`, không đụng mạng. `false` = dùng Firebase thật. Đổi tay khi cần,
+dùng làm phương án dự phòng lúc demo mất mạng — không xoá `src/mocks/`.
+
+**Biến môi trường** (`.env`, tiền tố bắt buộc `EXPO_PUBLIC_` để lọt vào bundle
+client): `EXPO_PUBLIC_FB_API_KEY`, `EXPO_PUBLIC_FB_AUTH_DOMAIN`,
+`EXPO_PUBLIC_FB_DATABASE_URL`, `EXPO_PUBLIC_FB_PROJECT_ID`,
+`EXPO_PUBLIC_FB_APP_ID`. `.env` nằm trong `.gitignore`, không commit.
+`app.config.js` đọc `process.env.EXPO_PUBLIC_FB_*` lúc build, gom vào
+`extra.firebase`; `src/services/firebase.ts` đọc lại qua `expo-constants`
+(`Constants.expoConfig.extra.firebase`), KHÔNG đọc `process.env` trực tiếp
+trong code app.
+
+`firebase-seed.json` ở gốc repo là dữ liệu mẫu để import thủ công vào Realtime
+Database qua Firebase Console (Import JSON) — khớp đúng cấu trúc ở trên, dùng
+UID Auth thật thay cho 2 tài khoản test.
 
 ## Quy tắc nghiệp vụ
 
@@ -169,8 +204,9 @@ border       #D6E5D4   viền
 ## Cách làm việc
 
 - Làm từng mốc một, không nhảy cóc. Xong mốc nào commit mốc đó.
-- **Giai đoạn đầu dùng dữ liệu giả** trong `src/mocks/`. Chỉ nối Firebase khi
-  toàn bộ 8 màn hình đã hiển thị được.
+- Đã nối Firebase thật (xem mục "Kết nối Firebase"). `src/mocks/` vẫn giữ lại
+  làm phương án dự phòng — bật bằng cờ `USE_MOCK` trong `src/config.ts`, không
+  xoá dù không còn là đường chính.
 - Sau mỗi thay đổi lớn, chạy `npx tsc --noEmit` để bắt lỗi kiểu.
 - Không tự ý thêm thư viện mới nếu chưa hỏi. Thư viện native cần build lại APK.
 - Không viết file dài quá 250 dòng, tách nhỏ ra.
@@ -195,3 +231,9 @@ border       #D6E5D4   viền
   hoặc npx expo install <pkg> -- --legacy-peer-deps
 - slug trong app.json phải giữ "fruit-batch-management-system" cho khớp projectId EAS
 - Đã build development APK thành công, chỉ build lại khi thêm thư viện native
+- `firebase`, `expo-constants`, `@react-native-async-storage/async-storage` đã
+  có sẵn trong package.json — không cần cài lại hay build lại APK cho phần
+  Firebase (đều là JS package, không phải native module mới)
+- Sửa `.env` xong phải `expo start -c` (xoá cache) mới nạp lại `app.config.js`;
+  thiếu biến `EXPO_PUBLIC_FB_*` thì app throw ngay lúc khởi động
+  (`src/services/firebase.ts`), không phải lỗi Firebase Console

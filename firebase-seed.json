@@ -1,0 +1,229 @@
+{
+  "users": {
+    "7SJfz1zsm0NaUT0pue7p4MjQSLC2": {
+      "role": "grower",
+      "name": "Chủ vườn",
+      "orgName": "Vườn Xoài Cát Hòa Lộc"
+    },
+    "pJr4U8VX4BV2hhZQHpkZHNes4Om2": {
+      "role": "retailer",
+      "name": "Nhân viên đại lý",
+      "orgName": "Kho đại lý Bình Thạnh"
+    }
+  },
+  "lots": {
+    "FC-2026-A7X92K": {
+      "fruitType": "Xoai",
+      "ripeness": "Xoai_chin_toi",
+      "harvestDate": "2026-08-28",
+      "quantity": 120,
+      "unit": "kg",
+      "storageType": "lanh",
+      "gardenName": "Vườn Xoài Cát Hòa Lộc",
+      "initialShelfDays": 9,
+      "consumedRatio": 0.15,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "status": "in_stock",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "createdAt": "2026-08-28T02:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-28T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-28T03:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-A7X92K" },
+        { "event": "shipped", "timestamp": "2026-08-28T06:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-29T01:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-29T01:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho đại lý" }
+      ]
+    },
+    "FC-2026-B3M18P": {
+      "fruitType": "Chuoi",
+      "ripeness": "Chuoi_chin_toi",
+      "harvestDate": "2026-08-27",
+      "quantity": 80,
+      "unit": "kg",
+      "storageType": "thuong",
+      "gardenName": "Vườn Chuối Laba Đà Lạt",
+      "initialShelfDays": 6,
+      "consumedRatio": 0.65,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "status": "in_stock",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "createdAt": "2026-08-27T01:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-27T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-27T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-B3M18P" },
+        { "event": "shipped", "timestamp": "2026-08-27T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-28T00:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-28T00:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, nhiệt độ kho tăng nhẹ" }
+      ]
+    },
+    "FC-2026-C9Q54R": {
+      "fruitType": "Dau",
+      "ripeness": "Chin_toi",
+      "harvestDate": "2026-08-26",
+      "quantity": 30,
+      "unit": "kg",
+      "storageType": "lanh",
+      "gardenName": "Vườn Dâu Đà Lạt Xanh",
+      "initialShelfDays": 4,
+      "consumedRatio": 0.85,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "status": "in_stock",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "createdAt": "2026-08-26T01:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-26T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-26T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-C9Q54R" },
+        { "event": "shipped", "timestamp": "2026-08-26T04:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-26T20:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-26T20:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, cảnh báo sắp hết hạn" }
+      ]
+    },
+    "FC-2026-D2N77T": {
+      "fruitType": "Tao",
+      "ripeness": "Chin_toi",
+      "harvestDate": "2026-08-20",
+      "quantity": 200,
+      "unit": "kg",
+      "storageType": "lanh",
+      "gardenName": "Vườn Táo Sa Pa",
+      "initialShelfDays": 21,
+      "consumedRatio": 0.3,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "status": "in_stock",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "createdAt": "2026-08-20T01:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-20T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-20T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-D2N77T" },
+        { "event": "shipped", "timestamp": "2026-08-20T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-21T00:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-21T00:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho đại lý" }
+      ]
+    },
+    "FC-2026-E5K33W": {
+      "fruitType": "Nho",
+      "ripeness": "Chin_toi",
+      "harvestDate": "2026-08-25",
+      "quantity": 60,
+      "unit": "kg",
+      "storageType": "lanh",
+      "gardenName": "Vườn Nho Ninh Thuận",
+      "initialShelfDays": 14,
+      "consumedRatio": 0.95,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "status": "in_stock",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2",
+      "createdAt": "2026-08-25T01:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-25T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-25T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-E5K33W" },
+        { "event": "shipped", "timestamp": "2026-08-25T05:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" },
+        { "event": "received", "timestamp": "2026-08-25T22:00:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Đại lý tiếp nhận" },
+        { "event": "in_stock", "timestamp": "2026-08-25T22:30:00.000Z", "actorId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2", "note": "Nhập kho, gần hết hạn sử dụng" }
+      ]
+    },
+    "FC-2026-F1H60Y": {
+      "fruitType": "Xoai",
+      "ripeness": "Xoai_xanh",
+      "harvestDate": "2026-08-31",
+      "quantity": 150,
+      "unit": "kg",
+      "storageType": "thuong",
+      "gardenName": "Vườn Xoài Cát Hòa Lộc",
+      "initialShelfDays": 9,
+      "consumedRatio": null,
+      "status": "in_transit",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "createdAt": "2026-08-31T02:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-08-31T02:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-08-31T03:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-F1H60Y" },
+        { "event": "shipped", "timestamp": "2026-08-31T06:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Xuất kho vận chuyển" }
+      ]
+    },
+    "FC-2026-G8J41L": {
+      "fruitType": "Chuoi",
+      "ripeness": "Chuoi_xanh",
+      "harvestDate": "2026-09-01",
+      "quantity": 90,
+      "unit": "kg",
+      "storageType": "thuong",
+      "gardenName": "Vườn Chuối Laba Đà Lạt",
+      "initialShelfDays": 6,
+      "consumedRatio": null,
+      "status": "at_garden",
+      "growerId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "currentHolderId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2",
+      "createdAt": "2026-09-01T01:00:00.000Z",
+      "history": [
+        { "event": "harvested", "timestamp": "2026-09-01T01:00:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Thu hoạch tại vườn" },
+        { "event": "qr_generated", "timestamp": "2026-09-01T01:30:00.000Z", "actorId": "7SJfz1zsm0NaUT0pue7p4MjQSLC2", "note": "Tạo mã QR FC-2026-G8J41L" }
+      ]
+    }
+  },
+  "stations": {
+    "station-001": {
+      "name": "Kho đại lý Bình Thạnh",
+      "temp": 29.0,
+      "humid": 75,
+      "updatedAt": "2026-09-01T08:00:00.000Z",
+      "retailerId": "pJr4U8VX4BV2hhZQHpkZHNes4Om2"
+    }
+  },
+  "alerts": {
+    "alert-001": {
+      "lotId": "FC-2026-A7X92K",
+      "level": "green",
+      "type": "new_stock",
+      "createdAt": "2026-08-29T01:30:00.000Z",
+      "isRead": true,
+      "message": "Lô xoài mới nhập kho, tình trạng ổn định."
+    },
+    "alert-002": {
+      "lotId": "FC-2026-B3M18P",
+      "level": "yellow",
+      "type": "expiring_soon",
+      "createdAt": "2026-09-01T06:00:00.000Z",
+      "isRead": false,
+      "message": "Lô chuối sắp hết hạn, ưu tiên bán trước."
+    },
+    "alert-003": {
+      "lotId": "FC-2026-E5K33W",
+      "level": "red",
+      "type": "overdue",
+      "createdAt": "2026-09-01T07:00:00.000Z",
+      "isRead": false,
+      "message": "Lô nho sắp quá hạn sử dụng, cần xử lý ngay."
+    }
+  },
+  "config": {
+    "shelfLifeBase": {
+      "Chuoi": 6,
+      "Xoai": 9,
+      "Tao": 21,
+      "Nho": 14,
+      "Dau": 4
+    },
+    "ripenessFactor": {
+      "Chuoi_xanh": 1.4,
+      "Chuoi_chin_toi": 1,
+      "Chuoi_chin_ky": 0.6,
+      "Xoai_xanh": 1.3,
+      "Xoai_chin_toi": 1,
+      "Chin_toi": 1
+    },
+    "assumedTemp": {
+      "at_garden_normal": 30,
+      "at_garden_cold": 15,
+      "in_transit": 32,
+      "in_transit_cold": 18
+    },
+    "ripenessSupported": ["Chuoi", "Xoai"]
+  }
+}

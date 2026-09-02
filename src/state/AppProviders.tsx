@@ -1,10 +1,10 @@
-import { SessionProvider } from './SessionContext';
+import { AuthProvider } from '../context/AuthContext';
 import { LotsProvider } from './LotsContext';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <LotsProvider>{children}</LotsProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }

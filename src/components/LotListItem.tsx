@@ -2,9 +2,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, radius, spacing, statusColorHex } from '../constants/theme';
 import { FRUIT_TYPE_LABELS } from '../constants/strings';
 import type { Lot } from '../mocks/lots';
-import { mockStation } from '../mocks/lots';
-import { assumedTemp } from '../mocks/config';
+import { assumedTemp as defaultAssumedTemp } from '../mocks/config';
 import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../lib/shelfLife';
+import { useConfig } from '../hooks/useConfig';
+import { useStationTemp } from '../hooks/useStationTemp';
 import { StatusBadge } from './StatusBadge';
 
 interface LotListItemProps {
@@ -13,7 +14,9 @@ interface LotListItemProps {
 }
 
 export function LotListItem({ lot, onPress }: LotListItemProps) {
-  const consumedRatio = resolveConsumedRatio(lot, assumedTemp, mockStation.temp, new Date());
+  const { config } = useConfig();
+  const { station } = useStationTemp(lot.currentHolderId);
+  const consumedRatio = resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, new Date());
   const remainingRatio = getRemainingRatio(consumedRatio);
   const statusColor = statusColorHex[getStatusColor(remainingRatio)];
   const remainingDays = getRemainingDaysFloor(lot.initialShelfDays, consumedRatio);

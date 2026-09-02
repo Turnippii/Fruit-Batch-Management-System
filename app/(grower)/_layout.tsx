@@ -1,16 +1,24 @@
 import { Redirect, Tabs } from 'expo-router';
-import { Text, ColorValue } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, ColorValue } from 'react-native';
 import { colors } from '../../src/constants/theme';
 import { strings } from '../../src/constants/strings';
-import { useSession } from '../../src/state/SessionContext';
+import { useAuth } from '../../src/context/AuthContext';
 
 function TabIcon({ emoji, color }: { emoji: string; color: ColorValue }) {
   return <Text style={{ fontSize: 20, color }}>{emoji}</Text>;
 }
 
 export default function GrowerLayout() {
-  const { session } = useSession();
-  if (!session || session.role !== 'grower') {
+  const { profile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={colors.greenMain} />
+      </View>
+    );
+  }
+  if (!profile || profile.role !== 'grower') {
     return <Redirect href="/(auth)/login" />;
   }
 
@@ -43,3 +51,12 @@ export default function GrowerLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.bg,
+  },
+});

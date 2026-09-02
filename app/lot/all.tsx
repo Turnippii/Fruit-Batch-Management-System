@@ -6,6 +6,7 @@ import { colors, fontSize, radius, spacing } from '../../src/constants/theme';
 import { strings, LOT_STATUS_LABELS } from '../../src/constants/strings';
 import { Chip } from '../../src/components/Chip';
 import { LotListItem } from '../../src/components/LotListItem';
+import { AsyncState } from '../../src/components/AsyncState';
 import { useLots } from '../../src/state/LotsContext';
 import type { LotStatus } from '../../src/mocks/lots';
 
@@ -13,7 +14,7 @@ const STATUS_FILTERS: (LotStatus | 'all')[] = ['all', 'at_garden', 'in_transit',
 
 export default function LotAllScreen() {
   const router = useRouter();
-  const { lots } = useLots();
+  const { lots, loading, error } = useLots();
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<LotStatus | 'all'>('all');
 
@@ -57,16 +58,18 @@ export default function LotAllScreen() {
           />
         </View>
 
-        <FlatList
-          data={filteredLots}
-          keyExtractor={(lot) => lot.id}
-          style={styles.resultList}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.emptyText}>{strings.lotAll.emptyResult}</Text>}
-          renderItem={({ item }) => (
-            <LotListItem lot={item} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: item.id } })} />
-          )}
-        />
+        <AsyncState loading={loading} error={error}>
+          <FlatList
+            data={filteredLots}
+            keyExtractor={(lot) => lot.id}
+            style={styles.resultList}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={<Text style={styles.emptyText}>{strings.lotAll.emptyResult}</Text>}
+            renderItem={({ item }) => (
+              <LotListItem lot={item} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: item.id } })} />
+            )}
+          />
+        </AsyncState>
       </View>
     </SafeAreaView>
   );

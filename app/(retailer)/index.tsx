@@ -6,19 +6,24 @@ import { strings, FRUIT_TYPE_LABELS } from '../../src/constants/strings';
 import { SectionCard } from '../../src/components/SectionCard';
 import { StatCard } from '../../src/components/StatCard';
 import { ColorDot } from '../../src/components/ColorDot';
-import { mockStation } from '../../src/mocks/lots';
-import { assumedTemp } from '../../src/mocks/config';
-import { useLots } from '../../src/state/LotsContext';
+import { AsyncState } from '../../src/components/AsyncState';
+import { useAuth } from '../../src/context/AuthContext';
+import { useLotsByHolder } from '../../src/hooks/useLotsByHolder';
+import { useStationTemp } from '../../src/hooks/useStationTemp';
+import { useConfig } from '../../src/hooks/useConfig';
 import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
 
 export default function RetailerHomeScreen() {
   const router = useRouter();
-  const { lots } = useLots();
+  const { profile } = useAuth();
+  const { lots, loading, error } = useLotsByHolder(profile?.uid);
+  const { station } = useStationTemp(profile?.uid);
+  const { config } = useConfig();
 
   const inStockLots = lots
     .filter((lot) => lot.status === 'in_stock')
     .map((lot) => {
-      const consumedRatio = resolveConsumedRatio(lot, assumedTemp, mockStation.temp, new Date());
+      const consumedRatio = config ? resolveConsumedRatio(lot, config.assumedTemp, station?.temp, new Date()) : 0;
       return {
         lot,
         remainingDays: getRemainingDaysFloor(lot.initialShelfDays, consumedRatio),
@@ -33,7 +38,7 @@ export default function RetailerHomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.stationName}>{mockStation.name}</Text>
+        <Text style={styles.stationName}>{station?.name ?? profile?.orgName}</Text>
 
         <View style={styles.statsRow}>
           <StatCard value={greenCount} label={strings.retailerHome.countGreen} accentColor={statusColorHex.green} />
@@ -45,36 +50,38 @@ export default function RetailerHomeScreen() {
           <View style={styles.tempRow}>
             <View>
               <Text style={styles.tempLabel}>{strings.retailerHome.stationTemp}</Text>
-              <Text style={styles.tempValue}>{mockStation.temp}°C</Text>
+              <Text style={styles.tempValue}>{station ? `${station.temp}°C` : '—'}</Text>
             </View>
             <View>
               <Text style={styles.tempLabel}>{strings.retailerHome.stationHumid}</Text>
-              <Text style={styles.tempValue}>{mockStation.humid}%</Text>
+              <Text style={styles.tempValue}>{station ? `${station.humid}%` : '—'}</Text>
             </View>
           </View>
         </SectionCard>
 
         <Text style={styles.sectionTitle}>{strings.retailerHome.lotListTitle}</Text>
-        <View style={styles.list}>
-          {inStockLots.map(({ lot, remainingDays, color }) => (
-            <Pressable
-              key={lot.id}
-              style={styles.lotRow}
-              onPress={() => router.push({ pathname: '/lot/[id]', params: { id: lot.id } })}
-            >
-              <ColorDot color={color} size={12} />
-              <View style={styles.lotInfo}>
-                <Text style={styles.lotTitle}>
-                  {FRUIT_TYPE_LABELS[lot.fruitType]} · {lot.gardenName}
+        <AsyncState loading={loading} error={error} isEmpty={inStockLots.length === 0} emptyText={strings.lotAll.emptyResult}>
+          <View style={styles.list}>
+            {inStockLots.map(({ lot, remainingDays, color }) => (
+              <Pressable
+                key={lot.id}
+                style={styles.lotRow}
+                onPress={() => router.push({ pathname: '/lot/[id]', params: { id: lot.id } })}
+              >
+                <ColorDot color={color} size={12} />
+                <View style={styles.lotInfo}>
+                  <Text style={styles.lotTitle}>
+                    {FRUIT_TYPE_LABELS[lot.fruitType]} · {lot.gardenName}
+                  </Text>
+                  <Text style={styles.lotCode}>{lot.id}</Text>
+                </View>
+                <Text style={[styles.daysLeft, { color: statusColorHex[color] }]}>
+                  {remainingDays} {strings.retailerHome.daysLeft}
                 </Text>
-                <Text style={styles.lotCode}>{lot.id}</Text>
-              </View>
-              <Text style={[styles.daysLeft, { color: statusColorHex[color] }]}>
-                {remainingDays} {strings.retailerHome.daysLeft}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+              </Pressable>
+            ))}
+          </View>
+        </AsyncState>
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,31 +2,35 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { colors, fontSize, radius, roleAccent, spacing } from '../../src/constants/theme';
+import { colors, fontSize, radius, spacing } from '../../src/constants/theme';
 import { strings } from '../../src/constants/strings';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
-import { RoleCard } from '../../src/components/RoleCard';
-import { useSession, Role } from '../../src/state/SessionContext';
-import { mockStation } from '../../src/mocks/lots';
-
-const DEMO_PROFILE: Record<Role, { name: string; orgName: string }> = {
-  grower: { name: 'Chủ vườn', orgName: 'Vườn Xoài Cát Hòa Lộc' },
-  retailer: { name: 'Nhân viên đại lý', orgName: mockStation.name },
-};
+import { useAuth } from '../../src/context/AuthContext';
+import { USE_MOCK } from '../../src/config';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useSession();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const canSubmit = email.length > 0 && password.length > 0 && role !== null;
+  const canSubmit = email.length > 0 && password.length > 0 && !submitting;
 
-  function handleSubmit() {
-    if (!canSubmit || !role) return;
-    login({ email, role, ...DEMO_PROFILE[role] });
-    router.replace(role === 'grower' ? '/(grower)' : '/(retailer)');
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setFormError(null);
+    try {
+      // role không còn chọn thủ công — đọc từ users/{uid} sau khi xác thực.
+      const role = await login(email.trim(), password);
+      router.replace(role === 'grower' ? '/(grower)' : '/(retailer)');
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : strings.common.errorGeneric);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -60,29 +64,14 @@ export default function LoginScreen() {
           />
         </View>
 
-        <Text style={styles.label}>{strings.auth.roleLabel}</Text>
-        <View style={styles.roleRow}>
-          <RoleCard
-            label={strings.auth.roleGrower}
-            description={strings.auth.roleGrowerDesc}
-            color={roleAccent.grower}
-            selected={role === 'grower'}
-            onPress={() => setRole('grower')}
-          />
-          <RoleCard
-            label={strings.auth.roleRetailer}
-            description={strings.auth.roleRetailerDesc}
-            color={roleAccent.retailer}
-            selected={role === 'retailer'}
-            onPress={() => setRole('retailer')}
-          />
-        </View>
+        {USE_MOCK && <Text style={styles.mockHint}>{strings.auth.mockHint}</Text>}
+        {formError && <Text style={styles.errorText}>{formError}</Text>}
 
         <PrimaryButton
-          label={strings.auth.submit}
+          label={submitting ? strings.common.loading : strings.auth.submit}
           onPress={handleSubmit}
           disabled={!canSubmit}
-          color={role ? roleAccent[role] : colors.greenMain}
+          color={colors.greenMain}
           style={styles.submitButton}
         />
 
@@ -139,11 +128,15 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     color: colors.ink,
   },
-  roleRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.xs,
-    marginBottom: spacing.xl,
+  mockHint: {
+    fontSize: fontSize.xs,
+    color: colors.muted,
+    marginBottom: spacing.md,
+  },
+  errorText: {
+    fontSize: fontSize.sm,
+    color: colors.redMain,
+    marginBottom: spacing.md,
   },
   submitButton: {
     marginTop: spacing.sm,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,7 +7,9 @@ import { strings, FRUIT_TYPE_LABELS, STORAGE_TYPE_LABELS } from '../../../src/co
 import { SectionCard } from '../../../src/components/SectionCard';
 import { PrimaryButton } from '../../../src/components/PrimaryButton';
 import { Chip } from '../../../src/components/Chip';
+import { AsyncState } from '../../../src/components/AsyncState';
 import { useLots } from '../../../src/state/LotsContext';
+import { useLotById } from '../../../src/hooks/useLotById';
 import { formatDate } from '../../../src/lib/format';
 import type { StorageTypeCode } from '../../../src/mocks/lots';
 
@@ -16,70 +18,86 @@ const STORAGE_TYPES = Object.keys(STORAGE_TYPE_LABELS);
 export default function LotEditScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { lots, updateLot } = useLots();
-  const lot = useMemo(() => lots.find((item) => item.id === id), [lots, id]);
+  const { updateLot } = useLots();
+  const { lot, loading, error } = useLotById(id);
 
-  const [quantity, setQuantity] = useState(lot ? String(lot.quantity) : '');
-  const [storageType, setStorageType] = useState<StorageTypeCode>(lot?.storageType ?? 'lanh');
-  const [note, setNote] = useState(lot?.note ?? '');
+  const [quantity, setQuantity] = useState('');
+  const [storageType, setStorageType] = useState<StorageTypeCode>('lanh');
+  const [note, setNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  if (!lot) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.content} />
-      </SafeAreaView>
-    );
-  }
+  // Nạp form từ dữ liệu thật khi lô vừa tải xong — chỉ một lần, tránh đè lại
+  // những gì người dùng đang gõ nếu lô cập nhật realtime trong lúc sửa.
+  useEffect(() => {
+    if (lot && !initialized) {
+      setQuantity(String(lot.quantity));
+      setStorageType(lot.storageType);
+      setNote(lot.note ?? '');
+      setInitialized(true);
+    }
+  }, [lot, initialized]);
 
-  function handleSave() {
+  async function handleSave() {
     if (!lot) return;
-    updateLot(lot.id, {
-      quantity: Number(quantity) || 0,
-      storageType,
-      note: note.trim() || undefined,
-    });
-    Alert.alert(strings.lotEdit.saved, undefined, [{ text: strings.common.confirm, onPress: () => router.back() }]);
+    setSubmitting(true);
+    try {
+      await updateLot(lot.id, {
+        quantity: Number(quantity) || 0,
+        storageType,
+        note: note.trim() || undefined,
+      });
+      Alert.alert(strings.lotEdit.saved, undefined, [{ text: strings.common.confirm, onPress: () => router.back() }]);
+    } catch (e) {
+      Alert.alert(strings.common.errorGeneric, e instanceof Error ? e.message : undefined);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <SectionCard title={strings.lotEdit.title} style={styles.section}>
-          <FormLabel text={strings.lotForm.fruitType} />
-          <Text style={styles.readonlyValue}>{FRUIT_TYPE_LABELS[lot.fruitType]}</Text>
+      <AsyncState loading={loading || !initialized} error={error} isEmpty={!loading && !lot} emptyText={strings.lotDetail.notFound}>
+        {lot && (
+          <ScrollView contentContainerStyle={styles.content}>
+            <SectionCard title={strings.lotEdit.title} style={styles.section}>
+              <FormLabel text={strings.lotForm.fruitType} />
+              <Text style={styles.readonlyValue}>{FRUIT_TYPE_LABELS[lot.fruitType]}</Text>
 
-          <FormLabel text={strings.lotForm.harvestDate} />
-          <Text style={styles.readonlyValue}>{formatDate(lot.harvestDate)}</Text>
-          <Text style={styles.lockedNote}>{strings.lotEdit.lockedNote}</Text>
+              <FormLabel text={strings.lotForm.harvestDate} />
+              <Text style={styles.readonlyValue}>{formatDate(lot.harvestDate)}</Text>
+              <Text style={styles.lockedNote}>{strings.lotEdit.lockedNote}</Text>
 
-          <FormLabel text={strings.lotEdit.quantity} />
-          <TextInput style={styles.input} value={quantity} onChangeText={setQuantity} keyboardType="numeric" />
+              <FormLabel text={strings.lotEdit.quantity} />
+              <TextInput style={styles.input} value={quantity} onChangeText={setQuantity} keyboardType="numeric" />
 
-          <FormLabel text={strings.lotEdit.storageType} />
-          <View style={styles.chipRow}>
-            {STORAGE_TYPES.map((code) => (
-              <Chip
-                key={code}
-                label={STORAGE_TYPE_LABELS[code]}
-                selected={storageType === code}
-                onPress={() => setStorageType(code as StorageTypeCode)}
+              <FormLabel text={strings.lotEdit.storageType} />
+              <View style={styles.chipRow}>
+                {STORAGE_TYPES.map((code) => (
+                  <Chip
+                    key={code}
+                    label={STORAGE_TYPE_LABELS[code]}
+                    selected={storageType === code}
+                    onPress={() => setStorageType(code as StorageTypeCode)}
+                  />
+                ))}
+              </View>
+
+              <FormLabel text={strings.lotEdit.note} />
+              <TextInput
+                style={[styles.input, styles.noteInput]}
+                value={note}
+                onChangeText={setNote}
+                placeholder={strings.lotEdit.notePlaceholder}
+                placeholderTextColor={colors.muted}
+                multiline
               />
-            ))}
-          </View>
+            </SectionCard>
 
-          <FormLabel text={strings.lotEdit.note} />
-          <TextInput
-            style={[styles.input, styles.noteInput]}
-            value={note}
-            onChangeText={setNote}
-            placeholder={strings.lotEdit.notePlaceholder}
-            placeholderTextColor={colors.muted}
-            multiline
-          />
-        </SectionCard>
-
-        <PrimaryButton label={strings.common.save} onPress={handleSave} />
-      </ScrollView>
+            <PrimaryButton label={submitting ? strings.common.loading : strings.common.save} onPress={handleSave} disabled={submitting} />
+          </ScrollView>
+        )}
+      </AsyncState>
     </SafeAreaView>
   );
 }

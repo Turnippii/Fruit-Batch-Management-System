@@ -5,20 +5,20 @@ import { colors, fontSize, radius, spacing } from '../constants/theme';
 import { strings } from '../constants/strings';
 import { SectionCard } from '../components/SectionCard';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { useSession } from '../state/SessionContext';
+import { useAuth } from '../context/AuthContext';
 
 interface AccountScreenProps {
   accentColor: string;
 }
 
 export function AccountScreen({ accentColor }: AccountScreenProps) {
-  const { session, logout } = useSession();
+  const { profile, logout } = useAuth();
   const router = useRouter();
 
-  if (!session) return null;
+  if (!profile) return null;
 
-  const orgLabel = session.role === 'grower' ? strings.account.orgLabelGrower : strings.account.orgLabelRetailer;
-  const roleLabel = session.role === 'grower' ? strings.auth.roleGrower : strings.auth.roleRetailer;
+  const orgLabel = profile.role === 'grower' ? strings.account.orgLabelGrower : strings.account.orgLabelRetailer;
+  const roleLabel = profile.role === 'grower' ? strings.auth.roleGrower : strings.auth.roleRetailer;
 
   function handleLogout() {
     Alert.alert(strings.account.logoutConfirmTitle, strings.account.logoutConfirmMessage, [
@@ -26,8 +26,8 @@ export function AccountScreen({ accentColor }: AccountScreenProps) {
       {
         text: strings.account.logout,
         style: 'destructive',
-        onPress: () => {
-          logout();
+        onPress: async () => {
+          await logout();
           router.replace('/(auth)/login');
         },
       },
@@ -39,17 +39,17 @@ export function AccountScreen({ accentColor }: AccountScreenProps) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={[styles.avatar, { backgroundColor: accentColor }]}>
-            <Text style={styles.avatarText}>{session.name.charAt(0).toUpperCase()}</Text>
+            <Text style={styles.avatarText}>{profile.name.charAt(0).toUpperCase()}</Text>
           </View>
-          <Text style={styles.name}>{session.name}</Text>
+          <Text style={styles.name}>{profile.name}</Text>
           <View style={[styles.roleBadge, { borderColor: accentColor }]}>
             <Text style={[styles.roleBadgeText, { color: accentColor }]}>{roleLabel}</Text>
           </View>
         </View>
 
         <SectionCard style={styles.infoCard}>
-          <InfoRow label={orgLabel} value={session.orgName} />
-          <InfoRow label={strings.account.emailLabel} value={session.email} />
+          <InfoRow label={orgLabel} value={profile.orgName} />
+          <InfoRow label={strings.account.emailLabel} value={profile.email} />
         </SectionCard>
 
         <PrimaryButton label={strings.account.logout} onPress={handleLogout} color={colors.redMain} variant="outline" />

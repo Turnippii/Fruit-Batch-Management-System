@@ -4,8 +4,9 @@ import { ALERT_LEVEL_LABELS, FRUIT_TYPE_LABELS, strings } from '../constants/str
 import { formatDateTime } from '../lib/format';
 import { getRemainingDaysFloor, resolveConsumedRatio } from '../lib/shelfLife';
 import type { Lot } from '../mocks/lots';
-import { mockStation } from '../mocks/lots';
-import { assumedTemp } from '../mocks/config';
+import { assumedTemp as defaultAssumedTemp } from '../mocks/config';
+import { useConfig } from '../hooks/useConfig';
+import { useStationTemp } from '../hooks/useStationTemp';
 
 interface AlertCardProps {
   level: StatusColorKey;
@@ -16,9 +17,14 @@ interface AlertCardProps {
 }
 
 export function AlertCard({ level, message, createdAt, lot, onPress }: AlertCardProps) {
+  const { config } = useConfig();
+  const { station } = useStationTemp(lot?.currentHolderId);
   const color = statusColorHex[level];
   const remainingDays = lot
-    ? getRemainingDaysFloor(lot.initialShelfDays, resolveConsumedRatio(lot, assumedTemp, mockStation.temp, new Date()))
+    ? getRemainingDaysFloor(
+        lot.initialShelfDays,
+        resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, new Date())
+      )
     : null;
 
   return (

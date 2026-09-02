@@ -6,34 +6,40 @@ import { strings } from '../../src/constants/strings';
 import { StatCard } from '../../src/components/StatCard';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { LotListItem } from '../../src/components/LotListItem';
+import { AsyncState } from '../../src/components/AsyncState';
 import { useLots } from '../../src/state/LotsContext';
-import { useSession } from '../../src/state/SessionContext';
+import { useAuth } from '../../src/context/AuthContext';
+import { useConfig } from '../../src/hooks/useConfig';
 import { getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
-import { mockStation } from '../../src/mocks/lots';
-import { assumedTemp } from '../../src/mocks/config';
 
 const RECENT_LOTS_LIMIT = 4;
 
 export default function GrowerHomeScreen() {
   const router = useRouter();
-  const { session } = useSession();
-  const { lots } = useLots();
+  const { profile } = useAuth();
+  const { lots, loading, error } = useLots();
+  const { config } = useConfig();
 
   const recentLots = [...lots]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, RECENT_LOTS_LIMIT);
 
-  const expiringSoonCount = lots.filter((lot) => {
-    const consumedRatio = resolveConsumedRatio(lot, assumedTemp, mockStation.temp, new Date());
-    const color = getStatusColor(getRemainingRatio(consumedRatio));
-    return color === 'yellow' || color === 'red';
-  }).length;
+  // Đếm nhanh không chờ cảm biến của từng đại lý — dùng nhiệt độ giả định, bỏ
+  // qua phần trôi thực tế theo cảm biến (xem resolveConsumedRatio: thiếu
+  // stationTemp thì giữ nguyên consumedRatio đã lưu, không cộng dồn thêm).
+  const expiringSoonCount = config
+    ? lots.filter((lot) => {
+        const consumedRatio = resolveConsumedRatio(lot, config.assumedTemp, undefined, new Date());
+        const color = getStatusColor(getRemainingRatio(consumedRatio));
+        return color === 'yellow' || color === 'red';
+      }).length
+    : 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.greeting}>
-          {strings.growerHome.greeting}, {session?.name ?? strings.auth.roleGrower}
+          {strings.growerHome.greeting}, {profile?.name ?? strings.auth.roleGrower}
         </Text>
 
         <View style={styles.statsRow}>
@@ -51,11 +57,13 @@ export default function GrowerHomeScreen() {
           <Text style={styles.sectionTitle}>{strings.growerHome.recentLots}</Text>
           <PrimaryButton label={strings.common.viewAll} onPress={() => router.push('/lot/all')} variant="outline" style={styles.viewAllButton} />
         </View>
-        <View style={styles.list}>
-          {recentLots.map((lot) => (
-            <LotListItem key={lot.id} lot={lot} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: lot.id } })} />
-          ))}
-        </View>
+        <AsyncState loading={loading} error={error} isEmpty={recentLots.length === 0} emptyText={strings.lotAll.emptyResult}>
+          <View style={styles.list}>
+            {recentLots.map((lot) => (
+              <LotListItem key={lot.id} lot={lot} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: lot.id } })} />
+            ))}
+          </View>
+        </AsyncState>
       </ScrollView>
     </SafeAreaView>
   );

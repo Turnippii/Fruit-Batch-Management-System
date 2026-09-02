@@ -6,7 +6,7 @@ import { colors, fontSize, radius, roleAccent, spacing } from '../../src/constan
 import { strings } from '../../src/constants/strings';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { RoleCard } from '../../src/components/RoleCard';
-import { useSession, Role } from '../../src/state/SessionContext';
+import { useAuth, Role } from '../../src/context/AuthContext';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,7 +21,7 @@ interface FormErrors {
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { login } = useSession();
+  const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,6 +29,8 @@ export default function RegisterScreen() {
   const [orgName, setOrgName] = useState('');
   const [role, setRole] = useState<Role | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const orgLabel = role === 'retailer' ? strings.auth.orgNameLabelRetailer : strings.auth.orgNameLabelGrower;
 
@@ -43,12 +45,20 @@ export default function RegisterScreen() {
     return next;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const nextErrors = validate();
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !role) return;
-    login({ email, name: name.trim(), orgName: orgName.trim(), role });
-    router.replace(role === 'grower' ? '/(grower)' : '/(retailer)');
+    setSubmitting(true);
+    setFormError(null);
+    try {
+      const registeredRole = await register({ email, password, name: name.trim(), orgName: orgName.trim(), role });
+      router.replace(registeredRole === 'grower' ? '/(grower)' : '/(retailer)');
+    } catch (e) {
+      setFormError(e instanceof Error ? e.message : strings.common.errorGeneric);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -68,10 +78,12 @@ export default function RegisterScreen() {
           <RoleCard label={strings.auth.roleRetailer} description={strings.auth.roleRetailerDesc} color={roleAccent.retailer} selected={role === 'retailer'} onPress={() => setRole('retailer')} />
         </View>
         {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
+        {formError && <Text style={styles.errorText}>{formError}</Text>}
 
         <PrimaryButton
-          label={strings.auth.registerSubmit}
+          label={submitting ? strings.common.loading : strings.auth.registerSubmit}
           onPress={handleSubmit}
+          disabled={submitting}
           color={role ? roleAccent[role] : colors.greenMain}
           style={styles.submitButton}
         />
