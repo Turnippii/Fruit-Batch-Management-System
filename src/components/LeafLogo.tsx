@@ -1,27 +1,26 @@
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { colors } from '../constants/theme';
 
 interface LeafLogoProps {
   size?: number;
-  leafColor?: string;
-  backgroundColor?: string;
+  color?: string;
 }
 
-/** Logo lá vẽ bằng react-native-svg (đã có sẵn từ mốc 0, không cần thư viện/asset
- * mới) — huy hiệu tròn nền xanh đậm (#14532D) với hình lá xanh sáng ở giữa, dùng ở
- * màn đăng nhập để tạo nhận diện thương hiệu ngay từ lần mở app đầu tiên. */
-export function LeafLogo({ size = 96, leafColor = colors.greenMain, backgroundColor = colors.greenDark }: LeafLogoProps) {
+/** Hình chiếc lá đúng bộ nhận diện (khớp icon.png/adaptive-icon.png/splash-logo.png)
+ * — viền lá + gân vẽ bằng stroke (không tô đặc), viewBox cố định "-40 -40 80 80" nên
+ * to/nhỏ theo prop `size` mà không méo tỉ lệ nét vẽ. Dùng lại ở mọi nơi cần vẽ logo
+ * (màn đăng nhập, đăng ký...) thay vì tự vẽ SVG riêng từng chỗ. */
+export function LeafLogo({ size = 96, color = colors.greenMain }: LeafLogoProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Circle cx={50} cy={50} r={50} fill={backgroundColor} />
-      <Path d="M50 82 C25 78 18 55 26 30 C34 8 60 6 78 18 C78 46 70 78 50 82 Z" fill={leafColor} />
+    <Svg width={size} height={size} viewBox="-40 -40 80 80">
       <Path
-        d="M50 78 C46 60 44 38 30 22"
-        stroke={backgroundColor}
-        strokeWidth={3}
+        d="M 26 -26 C 26 16 6 30 -14 26 C -32 22 -30 -4 -12 -14 C 2 -22 16 -22 26 -26 z"
         fill="none"
-        strokeLinecap="round"
+        stroke={color}
+        strokeWidth={7}
+        strokeLinejoin="round"
       />
+      <Path d="M 18 -18 L -16 18" stroke={color} strokeWidth={5.5} strokeLinecap="round" />
     </Svg>
   );
 }

@@ -29,7 +29,7 @@ nhập. Hai luồng màn hình tách biệt hoàn toàn.
 | Backend | Firebase JS SDK (modular v10+) | Realtime Database + Auth |
 | Camera & QR | `expo-camera` (`CameraView`) | KHÔNG dùng expo-barcode-scanner, đã khai tử |
 | Sinh mã QR | `react-native-qrcode-svg` + `react-native-svg` | |
-| AI on-device | `react-native-fast-tflite` | thêm sau cùng |
+| AI on-device | `react-native-fast-tflite` | đã tích hợp, xem "Model AI" |
 | Lưu cục bộ | `@react-native-async-storage/async-storage` | phiên đăng nhập |
 
 Chạy bằng **EAS development build** trên điện thoại Android thật. Expo Go không
@@ -271,6 +271,53 @@ không dùng index.
 - Nhãn `*_hong` (hỏng) → chặn tạo lô, hiện cảnh báo
 - Táo, nho, dâu không có nhãn độ chín → người dùng tự chọn, mặc định "Chín tới"
 
+**Đã tích hợp thật (`src/lib/classifier.ts`)**, chữ ký giữ nguyên
+`classify(uri) => { label, confidence, top3 }` như `src/mocks/classifier.ts` —
+`app/(grower)/capture.tsx` chọn hàm nào chạy bằng
+`const classify = USE_MOCK ? classifyMock : classifyReal` (đấu theo cờ
+`USE_MOCK` ở `src/config.ts`, giống mọi service khác). Vài quyết định đáng
+nhớ khi đọc lại code:
+
+- **Không có API đọc pixel thô trực tiếp từ ảnh chụp.** `expo-camera` chỉ cho
+  file JPEG, `expo-image-manipulator` chỉ resize ra file/base64 JPEG khác
+  (vẫn nén, không phải mảng pixel). Pipeline thật: resize 224×224 bằng
+  `expo-image-manipulator` (native, nhanh) → giải mã JPEG kết quả bằng
+  `jpeg-js` (JS thuần) → bỏ kênh Alpha, giữ đúng thứ tự R-G-B → uint8 array
+  150528 byte truyền thẳng cho model.
+- **`jpeg-js` phải gọi với `{ useTArray: true }`** — mặc định thư viện dùng
+  `Buffer.alloc()` (global `Buffer` của Node), không có trong Hermes/React
+  Native, sẽ throw "Buffer is not defined". `useTArray: true` chuyển sang
+  `Uint8Array` thuần, không cần polyfill gì thêm.
+- **Đã CÂN NHẮC và TỪ CHỐI `pngjs`** (định dùng để tránh nén JPEG lần 2 khi
+  resize) — `pngjs` `require('zlib')`/`require('stream')`/`require('buffer')`
+  của Node ở nhiều file lõi (`sync-inflate.js`, `chunkstream.js`...), không
+  chạy được trong RN nếu không polyfill cả chuỗi zlib/stream — đổi lại dùng
+  JPEG (`compress: 1`, giảm mất mát) + `jpeg-js` cho gọn.
+- **Base64 → bytes tự viết tay** (`src/lib/base64.ts`, có unit test) — không
+  dùng `Buffer`/`atob` của Node vì lý do y hệt trên.
+- **`labels.txt` đọc THẬT lúc runtime** qua `expo-asset`
+  (`Asset.fromModule(...).downloadAsync()` rồi `fetch(uri).then(r=>r.text())`)
+  — không hardcode danh sách nhãn trong code, đổi model+labels.txt sau này
+  không cần sửa `classifier.ts`. `metro.config.js` phải có `txt` trong
+  `resolver.assetExts` (thêm cùng lúc với `tflite`) để `require()` file này
+  không bị Metro cố parse như code.
+- **Dequantize output theo quy ước CHUẨN, không có scale/zero_point thật từ
+  thư viện.** `Tensor` type của `react-native-fast-tflite` chỉ có
+  `{name, dataType, shape}`, không lộ `scale`/`zero_point` của tensor lượng
+  tử hoá — model int8 thường xuất output cũng ở dạng uint8/int8, không phải
+  float trực tiếp. `classifier.ts` giả định quy ước chuẩn cho lớp softmax
+  (`uint8`: giá trị/255; `int8`: (giá trị+128)/255). Nếu confidence hiển thị
+  luôn ra ~0% hoặc ~100% bất thường, mở model bằng Netron kiểm tra scale/
+  zero_point thật của tensor output rồi sửa `dequantizeOutput()`.
+- **Nạp model một lần, cache theo `Promise`** (`loadPromise` module-level) —
+  nạp thất bại thì XOÁ cache lỗi (không giữ lỗi vĩnh viễn), lần `classify()`
+  kế tiếp được thử nạp lại. Lỗi nạp/suy luận không làm crash app — bắt ở
+  `capture.tsx`, rơi về `ManualFruitPicker` (coi như tin cậy thấp) kèm banner
+  báo lỗi màu cam.
+- **Console log 2 mốc thời gian** (phục vụ báo cáo): `Thời gian nạp model`
+  (một lần, lúc load xong) và `Thời gian suy luận (1 lần)` (mỗi lần
+  `classify()` chạy) — không tính thời gian resize/giải mã ảnh vào 2 số này.
+
 ## Quy ước code
 
 - Component hàm, hook. Không dùng class.
@@ -330,9 +377,12 @@ border       #D6E5D4   viền
   ở mốc 4 (đỡ build 2 lần). Icon/splash: `assets/icon.png`, `assets/adaptive-icon.png`
   (foreground trong suốt, nền `#14532D` khai trong `app.json`), `assets/splash.png`,
   `assets/favicon.png` — 4 file do người dùng cung cấp, không phải sinh bằng code.
-- `react-native-fast-tflite` + `react-native-nitro-modules` đã cài (mốc chuẩn bị cho
-  mốc 4) — CHỈ cài đặt + khai báo, CHƯA viết code tích hợp (`classify()` trong
-  `src/mocks/classifier.ts` vẫn còn nguyên, xem "Model AI"). Lưu ý cài đặt:
+- `react-native-fast-tflite` + `react-native-nitro-modules` đã cài VÀ đã tích hợp
+  xong (`src/lib/classifier.ts`, xem chi tiết ở "Model AI"). Thêm 3 gói nữa lúc tích
+  hợp: `expo-image-manipulator` (native, resize ảnh — cần build lại APK, gộp chung),
+  `expo-asset` (native nhưng đã transitive sẵn từ `expo` từ mốc 0 nên KHÔNG tốn thêm
+  build), `jpeg-js` (JS thuần, không native, không tốn build — xem lý do chọn thay
+  `pngjs` ở "Model AI"). Lưu ý cài đặt các gói native gốc ban đầu:
   - `react-native-nitro-modules` là peer dependency BẮT BUỘC của
     `react-native-fast-tflite` (thư viện dựng trên Nitro Modules) — `npm install`
     không tự cài peer dependency, phải cài tay cả hai gói, thiếu gói này app crash

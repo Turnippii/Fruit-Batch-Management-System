@@ -13,7 +13,19 @@ import { CameraPermissionGate } from '../../src/components/CameraPermissionGate'
 import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { PhotoFrame } from '../../src/components/capture/PhotoFrame';
 import { ManualFruitPicker } from '../../src/components/capture/ManualFruitPicker';
-import { classify, parseLabel, pickMockPhoto, ClassifyResult, MockScenario } from '../../src/mocks/classifier';
+import { USE_MOCK } from '../../src/config';
+import {
+  classify as classifyMock,
+  parseLabel,
+  pickMockPhoto,
+  ClassifyResult,
+  MockScenario,
+} from '../../src/mocks/classifier';
+import { classify as classifyReal } from '../../src/lib/classifier';
+
+// Đấu theo cờ USE_MOCK giống các service khác (xem src/config.ts) — bật mock được cả
+// lúc demo mất mạng hoặc model lỗi, không phải sửa lại màn hình.
+const classify = USE_MOCK ? classifyMock : classifyReal;
 
 const AI_CONFIDENCE_THRESHOLD = 0.7;
 
@@ -32,13 +44,16 @@ export default function CaptureScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
   const [result, setResult] = useState<ClassifyResult | null>(null);
+  const [modelError, setModelError] = useState<string | null>(null);
   const [manualFruitType, setManualFruitType] = useState<string | null>(null);
   const [ripeness, setRipeness] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const isLowConfidence = result !== null && result.confidence < AI_CONFIDENCE_THRESHOLD;
-  const aiFruitType = result && !isLowConfidence ? parseLabel(result.label).fruitType : null;
-  const effectiveFruitType = isLowConfidence ? manualFruitType : aiFruitType;
+  // Model lỗi (không nạp được / suy luận lỗi) coi như tin cậy thấp — rơi về chọn thủ
+  // công thay vì crash hay đứng màn hình (mục 5 yêu cầu tích hợp TFLite).
+  const isManualMode = (result !== null && result.confidence < AI_CONFIDENCE_THRESHOLD) || modelError !== null;
+  const aiFruitType = result && !isManualMode ? parseLabel(result.label).fruitType : null;
+  const effectiveFruitType = isManualMode ? manualFruitType : aiFruitType;
   const isSpoiled = (result?.label.endsWith('_hong') ?? false) || (ripeness?.endsWith('_hong') ?? false);
   const sheetOptions = aiFruitType ? RIPENESS_SHEET_OPTIONS_BY_FRUIT[aiFruitType] : undefined;
 
@@ -48,6 +63,7 @@ export default function CaptureScreen() {
     setCameraOpen(false);
     setPhotoUri(null);
     setResult(null);
+    setModelError(null);
     setManualFruitType(null);
     setRipeness(null);
     setIsSheetOpen(false);
@@ -58,29 +74,39 @@ export default function CaptureScreen() {
     setCameraOpen(true);
   }
 
-  // Nhận diện vẫn là mock cho tới mốc 4 (thay TFLite thật) — classify(uri) chỉ hiểu
-  // các key ảnh giả định trong CLASSIFY_RESULTS, nên tra kết quả canned bằng key mock
-  // theo kịch bản demo đang chọn, TÁCH RIÊNG khỏi ảnh thật hiển thị cho người dùng.
+  // Ở chế độ mock, classify(uri) chỉ hiểu các key ảnh giả định trong CLASSIFY_RESULTS
+  // nên tra kết quả canned bằng key mock theo kịch bản demo đang chọn, TÁCH RIÊNG khỏi
+  // ảnh thật hiển thị cho người dùng. Ở chế độ thật, ảnh chụp được truyền thẳng cho
+  // model TFLite trên máy.
   async function handleShutter() {
     if (!cameraRef.current) return;
+    let capturedUri: string;
     try {
       const picture = await cameraRef.current.takePictureAsync({ quality: 0.5 });
-      setCameraOpen(false);
-      setPhotoUri(picture.uri);
-      setIsClassifying(true);
-      const mockKey = pickMockPhoto(demoMode).uri;
-      const res = await classify(mockKey);
+      capturedUri = picture.uri;
+    } catch (e) {
+      Alert.alert(strings.common.errorGeneric, e instanceof Error ? e.message : undefined);
+      return;
+    }
+
+    setCameraOpen(false);
+    setPhotoUri(capturedUri);
+    setIsClassifying(true);
+    setModelError(null);
+    try {
+      const classifyInput = USE_MOCK ? pickMockPhoto(demoMode).uri : capturedUri;
+      const res = await classify(classifyInput);
       setResult(res);
-      setIsClassifying(false);
       const spoiled = res.label.endsWith('_hong');
       const lowConfidence = res.confidence < AI_CONFIDENCE_THRESHOLD;
       if (!spoiled && !lowConfidence) {
         setRipeness(parseLabel(res.label).ripeness);
       }
     } catch (e) {
-      setCameraOpen(false);
+      // KHÔNG để app crash — rơi về chọn thủ công, giữ nguyên ảnh vừa chụp.
+      setModelError(e instanceof Error ? e.message : strings.capture.modelErrorHint);
+    } finally {
       setIsClassifying(false);
-      Alert.alert(strings.common.errorGeneric, e instanceof Error ? e.message : undefined);
     }
   }
 
@@ -94,7 +120,7 @@ export default function CaptureScreen() {
       <OfflineBanner />
       <CameraPermissionGate>
       <ScrollView contentContainerStyle={styles.content}>
-        {!cameraOpen && !photoUri && !isClassifying && (
+        {USE_MOCK && !cameraOpen && !photoUri && !isClassifying && (
           <SectionCard title={strings.capture.demoModeLabel} style={styles.section}>
             <View style={styles.chipRow}>
               {DEMO_OPTIONS.map((option) => (
@@ -114,15 +140,22 @@ export default function CaptureScreen() {
           onRetake={reset}
         />
 
-        {result && !isClassifying && (
+        {(result || modelError) && !isClassifying && (
           <>
+            {modelError && (
+              <SectionCard style={[styles.section, styles.modelErrorCard]}>
+                <Text style={styles.modelErrorTitle}>{strings.capture.modelErrorTitle}</Text>
+                <Text style={styles.modelErrorText}>{modelError}</Text>
+              </SectionCard>
+            )}
+
             {isSpoiled && (
               <SectionCard style={[styles.section, styles.spoiledCard]}>
                 <Text style={styles.spoiledText}>{strings.capture.spoiledWarning}</Text>
               </SectionCard>
             )}
 
-            {!isSpoiled && !isLowConfidence && aiFruitType && (
+            {!isSpoiled && !isManualMode && aiFruitType && result && (
               <>
                 <SectionCard title={strings.capture.aiResultTitle} style={styles.section}>
                   <Text style={styles.fruitResult}>{FRUIT_TYPE_LABELS[aiFruitType]}</Text>
@@ -143,7 +176,7 @@ export default function CaptureScreen() {
               </>
             )}
 
-            {!isSpoiled && isLowConfidence && (
+            {!isSpoiled && isManualMode && (
               <SectionCard style={styles.section}>
                 <ManualFruitPicker
                   fruitType={manualFruitType}
@@ -212,6 +245,20 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '700',
     color: colors.redMain,
+  },
+  modelErrorCard: {
+    borderColor: colors.amberMain,
+    backgroundColor: `${colors.amberMain}14`,
+  },
+  modelErrorTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.amberMain,
+  },
+  modelErrorText: {
+    marginTop: spacing.xs,
+    fontSize: fontSize.sm,
+    color: colors.ink,
   },
   ripenessHeader: {
     flexDirection: 'row',

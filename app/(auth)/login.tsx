@@ -40,7 +40,9 @@ export default function LoginScreen() {
       <OfflineBanner />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
-          <LeafLogo size={88} />
+          <View style={styles.logoCircle}>
+            <LeafLogo size={56} color={colors.white} />
+          </View>
         </View>
         <Text style={styles.appName}>{strings.common.appName}</Text>
         <Text style={styles.subtitle}>{strings.auth.subtitle}</Text>
@@ -105,6 +107,14 @@ const styles = StyleSheet.create({
   logoWrap: {
     alignItems: 'center',
     marginBottom: spacing.lg,
+  },
+  logoCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.greenDark,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   appName: {
     fontSize: fontSize.xxl,

@@ -148,6 +148,8 @@ export const strings = {
     demoLow: 'Tin cậy thấp',
     demoSpoiled: 'Hỏng',
     bottomSheetTitle: 'Chọn độ chín',
+    modelErrorTitle: 'Không nhận diện được bằng AI',
+    modelErrorHint: 'Model AI trên máy gặp lỗi, vui lòng chọn loại quả và độ chín thủ công.',
   },
   lotForm: {
     title: 'Thông tin lô & mã QR',

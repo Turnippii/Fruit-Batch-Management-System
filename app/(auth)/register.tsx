@@ -7,6 +7,7 @@ import { strings } from '../../src/constants/strings';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { RoleCard } from '../../src/components/RoleCard';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
+import { LeafLogo } from '../../src/components/LeafLogo';
 import { useAuth, Role } from '../../src/context/AuthContext';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,6 +67,11 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <OfflineBanner />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.logoWrap}>
+          <View style={styles.logoCircle}>
+            <LeafLogo size={56} color={colors.white} />
+          </View>
+        </View>
         <Text style={styles.title}>{strings.auth.registerTitle}</Text>
 
         <Field label={strings.auth.nameLabel} value={name} onChangeText={setName} placeholder={strings.auth.namePlaceholder} error={errors.name} />
@@ -140,6 +146,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.xl,
+  },
+  logoWrap: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  logoCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.greenDark,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: fontSize.xxl,
