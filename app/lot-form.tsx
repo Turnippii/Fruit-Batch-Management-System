@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
@@ -91,6 +91,17 @@ export default function LotFormScreen() {
   // trừ hai lần (một lần trong previewConsumedRatio, một lần nếu neo cố định harvestDate).
   const expiryDate = getExpiryDate(initialShelfDays, previewConsumedRatio);
   const remainingDays = getRemainingDaysFloor(initialShelfDays, previewConsumedRatio);
+
+  // Chia sẻ CHỈ mã lô dạng text bằng Share (lõi react-native, không cần thư viện mới) —
+  // chia sẻ/lưu đúng ẢNH QR cần expo-sharing + expo-file-system (thư viện native mới,
+  // phải build lại APK), nên tạm dừng ở mức chia sẻ mã cho tới khi được duyệt cài thêm.
+  async function handleShareCode() {
+    try {
+      await Share.share({ message: `Mã lô hàng FruitTrace: ${lotCode}` });
+    } catch (e) {
+      Alert.alert(strings.common.errorGeneric, e instanceof Error ? e.message : undefined);
+    }
+  }
 
   async function handlePrint() {
     if (!profile) return;
@@ -190,6 +201,12 @@ export default function LotFormScreen() {
           <SectionCard title={strings.lotForm.qrTitle} style={[styles.section, styles.qrCard]}>
             <QRCode value={lotCode} size={160} />
             <Text style={styles.lotCode}>{lotCode}</Text>
+            <PrimaryButton
+              label={strings.lotForm.shareCode}
+              onPress={handleShareCode}
+              variant="outline"
+              style={styles.shareButton}
+            />
           </SectionCard>
 
           <PrimaryButton
@@ -296,5 +313,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 1,
     color: colors.greenDark,
+  },
+  shareButton: {
+    marginTop: spacing.md,
+    alignSelf: 'stretch',
+    paddingHorizontal: spacing.xl,
   },
 });

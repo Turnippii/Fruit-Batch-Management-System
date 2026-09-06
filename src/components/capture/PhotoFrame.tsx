@@ -1,38 +1,57 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { RefObject } from 'react';
+import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { CameraView } from 'expo-camera';
 import { colors, fontSize, radius, spacing } from '../../constants/theme';
 import { strings } from '../../constants/strings';
 import { PrimaryButton } from '../PrimaryButton';
-import type { MockPhoto } from '../../mocks/classifier';
 
 interface PhotoFrameProps {
-  photo: MockPhoto | null;
+  cameraRef: RefObject<CameraView | null>;
+  cameraOpen: boolean;
+  photoUri: string | null;
   isClassifying: boolean;
-  onCapture: () => void;
+  onOpenCamera: () => void;
+  onShutter: () => void;
   onRetake: () => void;
 }
 
-export function PhotoFrame({ photo, isClassifying, onCapture, onRetake }: PhotoFrameProps) {
+export function PhotoFrame({
+  cameraRef,
+  cameraOpen,
+  photoUri,
+  isClassifying,
+  onOpenCamera,
+  onShutter,
+  onRetake,
+}: PhotoFrameProps) {
   return (
     <View>
-      <View style={[styles.frame, photo && { backgroundColor: photo.color }]}>
-        {isClassifying ? (
+      <View style={styles.frame}>
+        {cameraOpen ? (
+          <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+        ) : isClassifying ? (
           <>
-            <ActivityIndicator size="large" color={colors.white} />
-            <Text style={styles.frameText}>{strings.capture.classifying}</Text>
+            {photoUri && <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} />}
+            <View style={styles.classifyingOverlay}>
+              <ActivityIndicator size="large" color={colors.white} />
+              <Text style={styles.frameText}>{strings.capture.classifying}</Text>
+            </View>
           </>
-        ) : photo ? (
-          <Text style={styles.emoji}>{photo.emoji}</Text>
+        ) : photoUri ? (
+          <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} />
         ) : (
           <Text style={styles.frameText}>{strings.capture.previewPlaceholder}</Text>
         )}
       </View>
 
-      {photo && !isClassifying ? (
+      {cameraOpen ? (
+        <PrimaryButton label={strings.capture.captureButton} onPress={onShutter} style={styles.actionButton} />
+      ) : photoUri && !isClassifying ? (
         <PrimaryButton label={strings.capture.retake} onPress={onRetake} variant="outline" style={styles.actionButton} />
       ) : (
         <PrimaryButton
           label={strings.capture.captureButton}
-          onPress={onCapture}
+          onPress={onOpenCamera}
           disabled={isClassifying}
           style={styles.actionButton}
         />
@@ -48,14 +67,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  classifyingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(31, 41, 55, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   frameText: {
     color: colors.white,
     fontSize: fontSize.sm,
     marginTop: spacing.sm,
-  },
-  emoji: {
-    fontSize: 96,
   },
   actionButton: {
     marginTop: spacing.md,

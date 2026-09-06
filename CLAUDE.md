@@ -160,6 +160,21 @@ Database → Rules).** Phân quyền theo đúng vai trò, hệ quả quan trọ
 **Mã QR chỉ chứa mã lô**, dạng `FC-2026-A7X92K`. Không nhúng dữ liệu vào QR vì
 hạn sử dụng thay đổi theo thời gian và nhiệt độ. Quét QR → lấy mã → tra Firebase.
 
+**`generateLotCode`/`isValidLotCode` (`src/lib/lotCode.ts`) CỐ Ý dùng hai bảng ký
+tự khác nhau — sinh thì chặt, chấp nhận thì rộng:**
+
+- `generateLotCode` sinh 6 ký tự cuối chỉ từ `CODE_CHARS` (A-Z0-9 loại bỏ
+  `0/O` và `1/I`) — hai cặp này quá giống nhau khi in nhỏ lên tem hoặc đọc
+  bằng mắt lúc đối chiếu thủ công.
+- `isValidLotCode` KHÔNG dùng chung `CODE_CHARS` — chấp nhận đầy đủ
+  `/^FC-\d{4}-[A-Z0-9]{6}$/` (có cả 0/O/1/I), vì mã hợp lệ có thể đến từ
+  nguồn khác app tự sinh: `firebase-seed.json`, hệ thống cũ, người dùng gõ
+  tay. Từng bị bug thật: validate dùng chung `CODE_CHARS` khiến mã hợp lệ
+  như `FC-2026-F1H60Y` (chứa `1` và `0`) bị từ chối nhầm.
+- Trước khi so khớp, luôn chuẩn hoá bằng `normalizeLotCode` (`trim()` +
+  `toUpperCase()`) — QR từ nhiều nguồn hay chèn khoảng trắng/xuống dòng ở
+  cuối và không nhất quán hoa/thường.
+
 **Không bao giờ ghi cứng `expiryDate`.** Luôn tính từ `initialShelfDays` và
 `consumedRatio`:
 

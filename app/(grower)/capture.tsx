@@ -1,16 +1,18 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { CameraView } from 'expo-camera';
 import { colors, fontSize, spacing } from '../../src/constants/theme';
 import { strings, FRUIT_TYPE_LABELS, RIPENESS_LABELS, RIPENESS_SHEET_OPTIONS_BY_FRUIT, RIPENESS_CHIPS_BY_FRUIT } from '../../src/constants/strings';
 import { SectionCard } from '../../src/components/SectionCard';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { Chip } from '../../src/components/Chip';
 import { BottomSheet } from '../../src/components/BottomSheet';
+import { CameraPermissionGate } from '../../src/components/CameraPermissionGate';
 import { PhotoFrame } from '../../src/components/capture/PhotoFrame';
 import { ManualFruitPicker } from '../../src/components/capture/ManualFruitPicker';
-import { classify, parseLabel, pickMockPhoto, ClassifyResult, MockPhoto, MockScenario } from '../../src/mocks/classifier';
+import { classify, parseLabel, pickMockPhoto, ClassifyResult, MockScenario } from '../../src/mocks/classifier';
 
 const AI_CONFIDENCE_THRESHOLD = 0.7;
 
@@ -23,8 +25,10 @@ const DEMO_OPTIONS: { key: MockScenario | 'random'; label: string }[] = [
 
 export default function CaptureScreen() {
   const router = useRouter();
+  const cameraRef = useRef<CameraView>(null);
   const [demoMode, setDemoMode] = useState<MockScenario | 'random'>('random');
-  const [photo, setPhoto] = useState<MockPhoto | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
   const [result, setResult] = useState<ClassifyResult | null>(null);
   const [manualFruitType, setManualFruitType] = useState<string | null>(null);
@@ -40,19 +44,31 @@ export default function CaptureScreen() {
   const canContinue = !isClassifying && !isSpoiled && effectiveFruitType !== null && ripeness !== null;
 
   function reset() {
-    setPhoto(null);
+    setCameraOpen(false);
+    setPhotoUri(null);
     setResult(null);
     setManualFruitType(null);
     setRipeness(null);
     setIsSheetOpen(false);
   }
 
-  function handleCapture() {
+  function handleOpenCamera() {
     reset();
-    setIsClassifying(true);
-    const selected = pickMockPhoto(demoMode);
-    classify(selected.uri).then((res) => {
-      setPhoto(selected);
+    setCameraOpen(true);
+  }
+
+  // Nhận diện vẫn là mock cho tới mốc 4 (thay TFLite thật) — classify(uri) chỉ hiểu
+  // các key ảnh giả định trong CLASSIFY_RESULTS, nên tra kết quả canned bằng key mock
+  // theo kịch bản demo đang chọn, TÁCH RIÊNG khỏi ảnh thật hiển thị cho người dùng.
+  async function handleShutter() {
+    if (!cameraRef.current) return;
+    try {
+      const picture = await cameraRef.current.takePictureAsync({ quality: 0.5 });
+      setCameraOpen(false);
+      setPhotoUri(picture.uri);
+      setIsClassifying(true);
+      const mockKey = pickMockPhoto(demoMode).uri;
+      const res = await classify(mockKey);
       setResult(res);
       setIsClassifying(false);
       const spoiled = res.label.endsWith('_hong');
@@ -60,7 +76,11 @@ export default function CaptureScreen() {
       if (!spoiled && !lowConfidence) {
         setRipeness(parseLabel(res.label).ripeness);
       }
-    });
+    } catch (e) {
+      setCameraOpen(false);
+      setIsClassifying(false);
+      Alert.alert(strings.common.errorGeneric, e instanceof Error ? e.message : undefined);
+    }
   }
 
   function handleContinue() {
@@ -70,8 +90,9 @@ export default function CaptureScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <CameraPermissionGate>
       <ScrollView contentContainerStyle={styles.content}>
-        {!photo && !isClassifying && (
+        {!cameraOpen && !photoUri && !isClassifying && (
           <SectionCard title={strings.capture.demoModeLabel} style={styles.section}>
             <View style={styles.chipRow}>
               {DEMO_OPTIONS.map((option) => (
@@ -81,7 +102,15 @@ export default function CaptureScreen() {
           </SectionCard>
         )}
 
-        <PhotoFrame photo={photo} isClassifying={isClassifying} onCapture={handleCapture} onRetake={reset} />
+        <PhotoFrame
+          cameraRef={cameraRef}
+          cameraOpen={cameraOpen}
+          photoUri={photoUri}
+          isClassifying={isClassifying}
+          onOpenCamera={handleOpenCamera}
+          onShutter={handleShutter}
+          onRetake={reset}
+        />
 
         {result && !isClassifying && (
           <>
@@ -142,6 +171,7 @@ export default function CaptureScreen() {
           onClose={() => setIsSheetOpen(false)}
         />
       )}
+      </CameraPermissionGate>
     </SafeAreaView>
   );
 }
