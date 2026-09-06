@@ -219,6 +219,12 @@ export const strings = {
     deleteConfirmMessage: 'Thao tác này không thể hoàn tác.',
     deleteNotAllowed: 'Chỉ có thể xóa lô còn ở vườn (chưa xuất kho)',
     notFound: 'Không tìm thấy lô hàng này.',
+    shipButton: 'Xuất kho, giao vận chuyển',
+    shipConfirmTitle: 'Xuất kho lô hàng?',
+    shipConfirmMessage: 'Lô sẽ chuyển sang trạng thái đang vận chuyển, đại lý có thể quét nhận.',
+    markSoldButton: 'Đánh dấu đã bán',
+    soldConfirmTitle: 'Đánh dấu đã bán?',
+    soldConfirmMessage: 'Lô sẽ dừng theo dõi hạn sử dụng tại đây, không thể hoàn tác.',
   },
   lotEdit: {
     title: 'Sửa thông tin lô',

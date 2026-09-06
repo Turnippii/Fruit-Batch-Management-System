@@ -36,9 +36,27 @@ interface LotDetailViewProps {
   isOwner: boolean;
   deleting: boolean;
   onDelete: () => void;
+  transitioning: boolean;
+  canShip: boolean;
+  onShip: () => void;
+  canMarkSold: boolean;
+  onMarkSold: () => void;
 }
 
-export function LotDetailView({ lot, assumedTempConfig, stationTemp, now, isOwner, deleting, onDelete }: LotDetailViewProps) {
+export function LotDetailView({
+  lot,
+  assumedTempConfig,
+  stationTemp,
+  now,
+  isOwner,
+  deleting,
+  onDelete,
+  transitioning,
+  canShip,
+  onShip,
+  canMarkSold,
+  onMarkSold,
+}: LotDetailViewProps) {
   const router = useRouter();
   const canDelete = lot.status === 'at_garden';
   const consumedRatio = resolveConsumedRatio(lot, assumedTempConfig, stationTemp, now);
@@ -115,6 +133,25 @@ export function LotDetailView({ lot, assumedTempConfig, stationTemp, now, isOwne
         </View>
       )}
       {isOwner && !canDelete && <Text style={styles.deleteNote}>{strings.lotDetail.deleteNotAllowed}</Text>}
+
+      {canShip && (
+        <PrimaryButton
+          label={transitioning ? strings.common.loading : strings.lotDetail.shipButton}
+          onPress={onShip}
+          disabled={transitioning}
+          style={styles.transitionButton}
+        />
+      )}
+
+      {canMarkSold && (
+        <PrimaryButton
+          label={transitioning ? strings.common.loading : strings.lotDetail.markSoldButton}
+          onPress={onMarkSold}
+          color={colors.blueMain}
+          disabled={transitioning}
+          style={styles.transitionButton}
+        />
+      )}
 
       <PrimaryButton
         label={strings.lotDetail.traceButton}
@@ -221,5 +258,8 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.muted,
     marginBottom: spacing.lg,
+  },
+  transitionButton: {
+    marginBottom: spacing.sm,
   },
 });
