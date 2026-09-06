@@ -85,6 +85,8 @@ export const strings = {
     errorGeneric: 'Có lỗi xảy ra, vui lòng thử lại.',
     retry: 'Thử lại',
     emptyGeneric: 'Chưa có dữ liệu.',
+    goBack: 'Quay lại',
+    offlineMessage: 'Mất kết nối mạng — dữ liệu có thể chưa cập nhật.',
   },
   auth: {
     title: 'Đăng nhập',
@@ -124,6 +126,7 @@ export const strings = {
     statExpiringSoon: 'Lô sắp hết hạn',
     createLot: 'Tạo lô hàng mới',
     recentLots: 'Lô gần đây',
+    emptyLots: 'Chưa có lô hàng nào. Tạo lô đầu tiên của bạn!',
   },
   capture: {
     title: 'Chụp ảnh & nhận diện',
@@ -176,6 +179,7 @@ export const strings = {
     stationHumid: 'Độ ẩm',
     lotListTitle: 'Danh sách lô trong kho',
     daysLeft: 'còn lại',
+    emptyStock: 'Kho đang trống. Quét mã QR trên thùng hàng để nhận lô đầu tiên.',
   },
   scan: {
     title: 'Quét mã QR',

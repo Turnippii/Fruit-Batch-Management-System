@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, fontSize, spacing } from '../../src/constants/theme';
@@ -8,10 +8,12 @@ import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { LotListItem } from '../../src/components/LotListItem';
 import { AsyncState } from '../../src/components/AsyncState';
 import { DemoBanner } from '../../src/components/DemoBanner';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useAuth } from '../../src/context/AuthContext';
 import { useDemo } from '../../src/context/DemoContext';
 import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
 import { useConfig } from '../../src/hooks/useConfig';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
 
 const RECENT_LOTS_LIMIT = 4;
@@ -21,7 +23,8 @@ export default function GrowerHomeScreen() {
   const { profile } = useAuth();
   const { now } = useDemo();
   const { lots, loading, error } = useLotsByGrower(profile?.uid);
-  const { config } = useConfig();
+  const { config, refetch: refetchConfig } = useConfig();
+  const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
 
   const recentLots = [...lots]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -40,8 +43,12 @@ export default function GrowerHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <OfflineBanner />
       <DemoBanner />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.greenMain} colors={[colors.greenMain]} />}
+      >
         <Text style={styles.greeting}>
           {strings.growerHome.greeting}, {profile?.name ?? strings.auth.roleGrower}
         </Text>
@@ -61,7 +68,15 @@ export default function GrowerHomeScreen() {
           <Text style={styles.sectionTitle}>{strings.growerHome.recentLots}</Text>
           <PrimaryButton label={strings.common.viewAll} onPress={() => router.push('/lot/all')} variant="outline" style={styles.viewAllButton} />
         </View>
-        <AsyncState loading={loading} error={error} isEmpty={recentLots.length === 0} emptyText={strings.lotAll.emptyResult}>
+        <AsyncState
+          loading={loading}
+          error={error}
+          isEmpty={recentLots.length === 0}
+          emptyIcon="🌱"
+          emptyText={strings.growerHome.emptyLots}
+          emptyActionLabel={strings.growerHome.createLot}
+          onEmptyAction={() => router.push('/(grower)/capture')}
+        >
           <View style={styles.list}>
             {recentLots.map((lot) => (
               <LotListItem key={lot.id} lot={lot} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: lot.id } })} />

@@ -7,8 +7,12 @@ import { strings, LOT_STATUS_LABELS } from '../../src/constants/strings';
 import { Chip } from '../../src/components/Chip';
 import { LotListItem } from '../../src/components/LotListItem';
 import { AsyncState } from '../../src/components/AsyncState';
+import { EmptyState } from '../../src/components/EmptyState';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useAuth } from '../../src/context/AuthContext';
 import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
+import { useConfig } from '../../src/hooks/useConfig';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import type { LotStatus } from '../../src/mocks/lots';
 
 const STATUS_FILTERS: (LotStatus | 'all')[] = ['all', 'at_garden', 'in_transit', 'in_stock', 'sold', 'discarded'];
@@ -17,6 +21,8 @@ export default function LotAllScreen() {
   const router = useRouter();
   const { profile } = useAuth();
   const { lots, loading, error } = useLotsByGrower(profile?.uid);
+  const { refetch: refetchConfig } = useConfig();
+  const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<LotStatus | 'all'>('all');
 
@@ -34,6 +40,7 @@ export default function LotAllScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <OfflineBanner />
       <View style={styles.content}>
         <TextInput
           style={styles.searchInput}
@@ -66,7 +73,20 @@ export default function LotAllScreen() {
             keyExtractor={(lot) => lot.id}
             style={styles.resultList}
             contentContainerStyle={styles.list}
-            ListEmptyComponent={<Text style={styles.emptyText}>{strings.lotAll.emptyResult}</Text>}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            ListEmptyComponent={
+              lots.length === 0 ? (
+                <EmptyState
+                  icon="🌱"
+                  text={strings.growerHome.emptyLots}
+                  actionLabel={strings.growerHome.createLot}
+                  onAction={() => router.push('/(grower)/capture')}
+                />
+              ) : (
+                <EmptyState icon="🔍" text={strings.lotAll.emptyResult} />
+              )
+            }
             renderItem={({ item }) => (
               <LotListItem lot={item} onPress={() => router.push({ pathname: '/lot/[id]', params: { id: item.id } })} />
             )}
@@ -111,11 +131,6 @@ const styles = StyleSheet.create({
   list: {
     gap: spacing.md,
     paddingBottom: spacing.xl,
-  },
-  emptyText: {
-    marginTop: spacing.xl,
-    textAlign: 'center',
-    fontSize: fontSize.sm,
-    color: colors.muted,
+    flexGrow: 1,
   },
 });

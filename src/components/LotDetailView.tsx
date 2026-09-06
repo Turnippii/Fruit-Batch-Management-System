@@ -182,10 +182,14 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    rowGap: spacing.xs,
+    columnGap: spacing.sm,
   },
   lotCode: {
+    flexShrink: 1,
     fontSize: fontSize.xl,
     fontWeight: '800',
     color: colors.ink,
@@ -227,15 +231,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: spacing.xs,
+    gap: spacing.sm,
   },
   infoLabel: {
+    flexShrink: 0,
     fontSize: fontSize.sm,
     color: colors.muted,
   },
   infoValue: {
+    flex: 1,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.ink,
+    textAlign: 'right',
   },
   noteText: {
     fontSize: fontSize.sm,

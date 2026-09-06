@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { colors, fontSize, spacing } from '../constants/theme';
@@ -8,10 +8,13 @@ import { AlertCard } from '../components/AlertCard';
 import { TimelineItem } from '../components/TimelineItem';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AsyncState } from '../components/AsyncState';
+import { OfflineBanner } from '../components/OfflineBanner';
 import { useAuth } from '../context/AuthContext';
 import { useAlerts } from '../hooks/useAlerts';
 import { useLotsByGrower } from '../hooks/useLotsByGrower';
 import { useLotsByHolder } from '../hooks/useLotsByHolder';
+import { useConfig } from '../hooks/useConfig';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
 
 interface AlertsScreenProps {
   accentColor: string;
@@ -25,6 +28,8 @@ export function AlertsScreen({ accentColor }: AlertsScreenProps) {
   const retailerLots = useLotsByHolder(isRetailer ? profile?.uid : undefined);
   const { lots, loading: lotsLoading, error: lotsError } = isRetailer ? retailerLots : growerLots;
   const { alerts, loading: alertsLoading, error: alertsError } = useAlerts(profile?.role, profile?.uid);
+  const { refetch: refetchConfig } = useConfig();
+  const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
   const { lotId } = useLocalSearchParams<{ lotId?: string }>();
   const traceLot = lots.find((lot) => lot.id === lotId) ?? lots[0];
 
@@ -34,12 +39,17 @@ export function AlertsScreen({ accentColor }: AlertsScreenProps) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <OfflineBanner />
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} colors={[accentColor]} />}
+      >
         <Text style={styles.sectionTitle}>{strings.alerts.alertsTitle}</Text>
         <AsyncState
           loading={alertsLoading || lotsLoading}
           error={alertsError ?? lotsError}
           isEmpty={alerts.length === 0}
+          emptyIcon="🔔"
           emptyText={strings.alerts.emptyAlerts}
         >
           <View style={styles.alertList}>

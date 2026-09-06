@@ -6,6 +6,7 @@ import { strings } from '../constants/strings';
 import { SectionCard } from '../components/SectionCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { DemoSettingsSection } from '../components/DemoSettingsSection';
+import { OfflineBanner } from '../components/OfflineBanner';
 import { useAuth } from '../context/AuthContext';
 
 interface AccountScreenProps {
@@ -37,6 +38,7 @@ export function AccountScreen({ accentColor }: AccountScreenProps) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <OfflineBanner />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={[styles.avatar, { backgroundColor: accentColor }]}>
@@ -118,14 +120,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: spacing.sm,
+    gap: spacing.sm,
   },
   infoLabel: {
+    flexShrink: 0,
     fontSize: fontSize.sm,
     color: colors.muted,
   },
   infoValue: {
+    flex: 1,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.ink,
+    textAlign: 'right',
   },
 });

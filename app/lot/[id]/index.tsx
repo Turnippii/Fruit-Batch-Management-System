@@ -7,6 +7,7 @@ import { strings } from '../../../src/constants/strings';
 import { AsyncState } from '../../../src/components/AsyncState';
 import { LotDetailView } from '../../../src/components/LotDetailView';
 import { DemoBanner } from '../../../src/components/DemoBanner';
+import { OfflineBanner } from '../../../src/components/OfflineBanner';
 import { useLots } from '../../../src/state/LotsContext';
 import { useAuth } from '../../../src/context/AuthContext';
 import { useDemo } from '../../../src/context/DemoContext';
@@ -126,8 +127,17 @@ export default function LotDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <OfflineBanner />
       <DemoBanner />
-      <AsyncState loading={loading} error={error} isEmpty={!lot} emptyText={strings.lotDetail.notFound}>
+      <AsyncState
+        loading={loading}
+        error={error}
+        isEmpty={!lot}
+        emptyIcon="❓"
+        emptyText={strings.lotDetail.notFound}
+        emptyActionLabel={strings.common.goBack}
+        onEmptyAction={() => router.back()}
+      >
         {lot && config && (
           <LotDetailView
             lot={lot}

@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, fontSize, radius, spacing, statusColorHex } from '../../src/constants/theme';
@@ -8,11 +8,13 @@ import { StatCard } from '../../src/components/StatCard';
 import { ColorDot } from '../../src/components/ColorDot';
 import { AsyncState } from '../../src/components/AsyncState';
 import { DemoBanner } from '../../src/components/DemoBanner';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useAuth } from '../../src/context/AuthContext';
 import { useDemo } from '../../src/context/DemoContext';
 import { useLotsByHolder } from '../../src/hooks/useLotsByHolder';
 import { useStationTemp } from '../../src/hooks/useStationTemp';
 import { useConfig } from '../../src/hooks/useConfig';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
 
 export default function RetailerHomeScreen() {
@@ -21,7 +23,8 @@ export default function RetailerHomeScreen() {
   const { now } = useDemo();
   const { lots, loading, error } = useLotsByHolder(profile?.uid);
   const { station } = useStationTemp(profile?.uid, profile?.role);
-  const { config } = useConfig();
+  const { config, refetch: refetchConfig } = useConfig();
+  const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
 
   const inStockLots = lots
     .filter((lot) => lot.status === 'in_stock')
@@ -40,8 +43,12 @@ export default function RetailerHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <OfflineBanner />
       <DemoBanner />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.blueMain} colors={[colors.blueMain]} />}
+      >
         <Text style={styles.stationName}>{station?.name ?? profile?.orgName}</Text>
 
         <View style={styles.statsRow}>
@@ -64,7 +71,15 @@ export default function RetailerHomeScreen() {
         </SectionCard>
 
         <Text style={styles.sectionTitle}>{strings.retailerHome.lotListTitle}</Text>
-        <AsyncState loading={loading} error={error} isEmpty={inStockLots.length === 0} emptyText={strings.lotAll.emptyResult}>
+        <AsyncState
+          loading={loading}
+          error={error}
+          isEmpty={inStockLots.length === 0}
+          emptyIcon="📦"
+          emptyText={strings.retailerHome.emptyStock}
+          emptyActionLabel={strings.scan.title}
+          onEmptyAction={() => router.push('/(retailer)/scan')}
+        >
           <View style={styles.list}>
             {inStockLots.map(({ lot, remainingDays, color }) => (
               <Pressable

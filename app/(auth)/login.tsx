@@ -5,6 +5,8 @@ import { Link, useRouter } from 'expo-router';
 import { colors, fontSize, radius, spacing } from '../../src/constants/theme';
 import { strings } from '../../src/constants/strings';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
+import { LeafLogo } from '../../src/components/LeafLogo';
 import { useAuth } from '../../src/context/AuthContext';
 import { USE_MOCK } from '../../src/config';
 
@@ -35,7 +37,11 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <OfflineBanner />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.logoWrap}>
+          <LeafLogo size={88} />
+        </View>
         <Text style={styles.appName}>{strings.common.appName}</Text>
         <Text style={styles.subtitle}>{strings.auth.subtitle}</Text>
 
@@ -95,6 +101,10 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.xl,
+  },
+  logoWrap: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
   },
   appName: {
     fontSize: fontSize.xxl,

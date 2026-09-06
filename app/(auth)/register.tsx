@@ -6,6 +6,7 @@ import { colors, fontSize, radius, roleAccent, spacing } from '../../src/constan
 import { strings } from '../../src/constants/strings';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { RoleCard } from '../../src/components/RoleCard';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useAuth, Role } from '../../src/context/AuthContext';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,6 +64,7 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <OfflineBanner />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{strings.auth.registerTitle}</Text>
 

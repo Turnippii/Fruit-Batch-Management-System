@@ -142,7 +142,21 @@ Database → Rules).** Phân quyền theo đúng vai trò, hệ quả quan trọ
   chạy ở `stations`, không "thấm" xuống filter từng con) — thiếu rule ở nhánh
   cha thì `orderByChild('retailerId').equalTo(uid)` bị permission_denied dù
   rule ở `$stationId` đúng. Rule ở `$stationId` chỉ áp dụng khi đọc trực tiếp
-  1 station theo đúng key.
+  1 station theo đúng key. **Ghi** vào `stations/$stationId` CHỈ được phép khi
+  `retailerId` đã lưu của đúng station đó bằng `auth.uid` (đại lý sở hữu trạm
+  mới ghi được nhiệt độ của chính mình) — trước đây `.write` là
+  `auth != null` cho `temp`/`humid`/`updatedAt`, nghĩa là BẤT KỲ tài khoản
+  nào đăng nhập cũng hạ được nhiệt độ giả của bất kỳ kho nào để kéo dài hạn
+  sử dụng hiển thị, đã siết lại. Kèm `.validate`: `temp` phải trong
+  khoảng [-10, 60], `humid` trong [0, 100], và `retailerId` KHÔNG được đổi
+  sau khi trạm đã tồn tại (chỉ set được lúc tạo mới).
+  **Lưu ý cho phần cứng (ESP32):** thiết bị ghi nhiệt độ bằng **Database
+  Secret** (legacy secret key), truy cập này ĐI VÒNG QUA toàn bộ Security
+  Rules ở trên — ESP32 không bị ảnh hưởng bởi các ràng buộc ownership/range
+  vừa thêm, vẫn ghi bình thường như cũ. Các ràng buộc này chỉ chặn truy cập
+  qua Firebase JS SDK với ID token của user (app di động, Console, hoặc gọi
+  REST API kèm ID token) — tức chặn đúng lỗ hổng "một tài khoản bất kỳ tự ý
+  sửa nhiệt độ kho người khác qua app/API", không phải lớp bảo vệ cho ESP32.
 - `alerts`: mỗi alert lưu sẵn `retailerId` (đại lý đang giữ lô lúc cảnh báo
   phát sinh) và `growerId` (chủ vườn của lô đó) — denormalize từ lô liên quan
   tại thời điểm tạo, không tra chéo sang `lots` mỗi lần đọc. Đọc DANH SÁCH chỉ
@@ -311,6 +325,11 @@ border       #D6E5D4   viền
   hoặc npx expo install <pkg> -- --legacy-peer-deps
 - slug trong app.json phải giữ "fruit-batch-management-system" cho khớp projectId EAS
 - Đã build development APK thành công, chỉ build lại khi thêm thư viện native
+- `expo-splash-screen` mới thêm (mốc hoàn thiện trước bảo vệ) — CẦN build lại
+  APK mới thấy icon/splash mới, gộp chung với lần build cho `react-native-fast-tflite`
+  ở mốc 4 (đỡ build 2 lần). Icon/splash: `assets/icon.png`, `assets/adaptive-icon.png`
+  (foreground trong suốt, nền `#14532D` khai trong `app.json`), `assets/splash.png`,
+  `assets/favicon.png` — 4 file do người dùng cung cấp, không phải sinh bằng code.
 - `firebase`, `expo-constants`, `@react-native-async-storage/async-storage` đã
   có sẵn trong package.json — không cần cài lại hay build lại APK cho phần
   Firebase (đều là JS package, không phải native module mới)

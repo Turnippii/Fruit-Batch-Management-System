@@ -2,12 +2,16 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, spacing } from '../constants/theme';
 import { strings } from '../constants/strings';
 import { PrimaryButton } from './PrimaryButton';
+import { EmptyState } from './EmptyState';
 
 interface AsyncStateProps {
   loading: boolean;
   error: string | null;
   isEmpty?: boolean;
   emptyText?: string;
+  emptyIcon?: string;
+  emptyActionLabel?: string;
+  onEmptyAction?: () => void;
   onRetry?: () => void;
   children: React.ReactNode;
 }
@@ -16,7 +20,17 @@ interface AsyncStateProps {
  * Gói 3 trạng thái chuẩn cho màn hình cần dữ liệu Firebase: đang tải / lỗi / rỗng.
  * Chỉ render `children` (nội dung thật) khi cả 3 trạng thái trên đều không xảy ra.
  */
-export function AsyncState({ loading, error, isEmpty, emptyText, onRetry, children }: AsyncStateProps) {
+export function AsyncState({
+  loading,
+  error,
+  isEmpty,
+  emptyText,
+  emptyIcon,
+  emptyActionLabel,
+  onEmptyAction,
+  onRetry,
+  children,
+}: AsyncStateProps) {
   if (loading) {
     return (
       <View style={styles.center}>
@@ -37,9 +51,12 @@ export function AsyncState({ loading, error, isEmpty, emptyText, onRetry, childr
 
   if (isEmpty) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.hint}>{emptyText ?? strings.common.emptyGeneric}</Text>
-      </View>
+      <EmptyState
+        icon={emptyIcon}
+        text={emptyText ?? strings.common.emptyGeneric}
+        actionLabel={emptyActionLabel}
+        onAction={onEmptyAction}
+      />
     );
   }
 

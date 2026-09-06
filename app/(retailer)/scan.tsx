@@ -9,6 +9,7 @@ import { SectionCard } from '../../src/components/SectionCard';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { AsyncState } from '../../src/components/AsyncState';
 import { CameraPermissionGate } from '../../src/components/CameraPermissionGate';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useLots } from '../../src/state/LotsContext';
 import { useAuth } from '../../src/context/AuthContext';
 import { useConfig } from '../../src/hooks/useConfig';
@@ -81,6 +82,7 @@ export default function ScanScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <OfflineBanner />
       <CameraPermissionGate>
         <View style={styles.content}>
           <View style={styles.scanFrame}>

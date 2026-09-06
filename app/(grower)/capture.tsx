@@ -10,6 +10,7 @@ import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { Chip } from '../../src/components/Chip';
 import { BottomSheet } from '../../src/components/BottomSheet';
 import { CameraPermissionGate } from '../../src/components/CameraPermissionGate';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { PhotoFrame } from '../../src/components/capture/PhotoFrame';
 import { ManualFruitPicker } from '../../src/components/capture/ManualFruitPicker';
 import { classify, parseLabel, pickMockPhoto, ClassifyResult, MockScenario } from '../../src/mocks/classifier';
@@ -90,6 +91,7 @@ export default function CaptureScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <OfflineBanner />
       <CameraPermissionGate>
       <ScrollView contentContainerStyle={styles.content}>
         {!cameraOpen && !photoUri && !isClassifying && (

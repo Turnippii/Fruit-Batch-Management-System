@@ -55,14 +55,18 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
+    columnGap: spacing.sm,
   },
   level: {
+    flexShrink: 0,
     fontSize: fontSize.sm,
     fontWeight: '700',
   },
   time: {
+    flexShrink: 0,
     fontSize: fontSize.xs,
     color: colors.muted,
   },

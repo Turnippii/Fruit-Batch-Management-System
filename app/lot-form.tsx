@@ -10,6 +10,7 @@ import { PrimaryButton } from '../src/components/PrimaryButton';
 import { Chip } from '../src/components/Chip';
 import { AsyncState } from '../src/components/AsyncState';
 import { DatePickerModal } from '../src/components/DatePickerModal';
+import { OfflineBanner } from '../src/components/OfflineBanner';
 import {
   getConsumptionFactor,
   getExpiryDate,
@@ -140,6 +141,7 @@ export default function LotFormScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <OfflineBanner />
       <AsyncState loading={configLoading} error={configError}>
         <ScrollView contentContainerStyle={styles.content}>
           <SectionCard title={strings.lotForm.title} style={styles.section}>
@@ -288,15 +290,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: spacing.xs,
+    gap: spacing.sm,
   },
   resultLabel: {
+    flex: 1,
     fontSize: fontSize.sm,
     color: colors.muted,
   },
   resultValue: {
+    flexShrink: 0,
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.ink,
+    textAlign: 'right',
   },
   forecastNote: {
     fontSize: fontSize.xs,

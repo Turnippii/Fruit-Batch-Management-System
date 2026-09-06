@@ -8,6 +8,7 @@ import { SectionCard } from '../../../src/components/SectionCard';
 import { PrimaryButton } from '../../../src/components/PrimaryButton';
 import { Chip } from '../../../src/components/Chip';
 import { AsyncState } from '../../../src/components/AsyncState';
+import { OfflineBanner } from '../../../src/components/OfflineBanner';
 import { useLots } from '../../../src/state/LotsContext';
 import { useLotById } from '../../../src/hooks/useLotById';
 import { formatDate } from '../../../src/lib/format';
@@ -57,7 +58,8 @@ export default function LotEditScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <AsyncState loading={loading || !initialized} error={error} isEmpty={!loading && !lot} emptyText={strings.lotDetail.notFound}>
+      <OfflineBanner />
+      <AsyncState loading={loading || !initialized} error={error} isEmpty={!loading && !lot} emptyIcon="❓" emptyText={strings.lotDetail.notFound}>
         {lot && (
           <ScrollView contentContainerStyle={styles.content}>
             <SectionCard title={strings.lotEdit.title} style={styles.section}>
