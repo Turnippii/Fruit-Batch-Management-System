@@ -317,6 +317,7 @@ nhớ khi đọc lại code:
 - **Console log 2 mốc thời gian** (phục vụ báo cáo): `Thời gian nạp model`
   (một lần, lúc load xong) và `Thời gian suy luận (1 lần)` (mỗi lần
   `classify()` chạy) — không tính thời gian resize/giải mã ảnh vào 2 số này.
+  Chỉ log khi `__DEV__` (build release không in ra console).
 
 ## Quy ước code
 

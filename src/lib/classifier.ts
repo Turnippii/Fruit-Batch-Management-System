@@ -48,14 +48,9 @@ function loadModelAndLabels(): Promise<LoadedModel> {
     const startedAt = Date.now();
     loadPromise = Promise.all([loadTensorflowModel(MODEL_ASSET_MODULE, []), loadLabels()])
       .then(([model, labels]) => {
-        const loadMs = Date.now() - startedAt;
-        // eslint-disable-next-line no-console
-        console.log(`[classifier] Thời gian nạp model: ${loadMs} ms`);
-        if (model.outputs.length !== 1 || model.outputs[0].shape[model.outputs[0].shape.length - 1] !== labels.length) {
+        if (__DEV__) {
           // eslint-disable-next-line no-console
-          console.log(
-            `[classifier] Cảnh báo: số lớp output model (${JSON.stringify(model.outputs.map((o) => o.shape))}) không khớp số dòng labels.txt (${labels.length}).`
-          );
+          console.log(`[classifier] Thời gian nạp model: ${Date.now() - startedAt} ms`);
         }
         return { model, labels };
       })
@@ -92,13 +87,6 @@ function dequantizeOutput(buffer: ArrayBuffer, dataType: TensorDataType): Float3
     return out;
   }
   throw new Error(`Kiểu dữ liệu output không hỗ trợ: ${dataType}`);
-}
-
-function logInputMismatch(input: Tensor): void {
-  if (input.dataType !== 'uint8') {
-    // eslint-disable-next-line no-console
-    console.log(`[classifier] Cảnh báo: model khai input dataType = ${input.dataType}, khác uint8 dự kiến.`);
-  }
 }
 
 /** Resize ảnh về 224x224 (expo-image-manipulator, native) rồi giải mã JPEG kết quả ra
@@ -141,15 +129,14 @@ async function preprocessImageToRgb(uri: string): Promise<Uint8Array> {
  */
 export async function classify(uri: string): Promise<ClassifyResult> {
   const { model, labels } = await loadModelAndLabels();
-  logInputMismatch(model.inputs[0]);
-
   const rgb = await preprocessImageToRgb(uri);
 
   const startedAt = Date.now();
   const outputs = await model.run([rgb.buffer as ArrayBuffer]);
-  const inferenceMs = Date.now() - startedAt;
-  // eslint-disable-next-line no-console
-  console.log(`[classifier] Thời gian suy luận (1 lần): ${inferenceMs} ms`);
+  if (__DEV__) {
+    // eslint-disable-next-line no-console
+    console.log(`[classifier] Thời gian suy luận (1 lần): ${Date.now() - startedAt} ms`);
+  }
 
   const scores = dequantizeOutput(outputs[0], model.outputs[0].dataType);
   if (scores.length !== labels.length) {

@@ -130,6 +130,8 @@ export default function CaptureScreen() {
           </SectionCard>
         )}
 
+        {!photoUri && !isClassifying && <Text style={styles.captureHint}>{strings.capture.captureHint}</Text>}
+
         <PhotoFrame
           cameraRef={cameraRef}
           cameraOpen={cameraOpen}
@@ -221,6 +223,12 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: spacing.lg,
+  },
+  captureHint: {
+    marginBottom: spacing.sm,
+    fontSize: fontSize.sm,
+    color: colors.muted,
+    textAlign: 'center',
   },
   chipRow: {
     flexDirection: 'row',

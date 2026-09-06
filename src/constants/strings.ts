@@ -130,6 +130,7 @@ export const strings = {
   },
   capture: {
     title: 'Chụp ảnh & nhận diện',
+    captureHint: 'Đưa quả gần camera, nền sáng, tránh ngược sáng',
     previewPlaceholder: 'Xem trước ảnh lô hàng',
     captureButton: 'Chụp ảnh',
     retake: 'Chụp lại',
