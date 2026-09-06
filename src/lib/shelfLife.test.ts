@@ -6,6 +6,8 @@ import {
   getExpiryDate,
   getCountdownParts,
   formatCountdown,
+  getConsumptionFactor,
+  getForecastShelfDays,
   getStageConsumedRatio,
   getConsumedRatioBreakdown,
   getTotalConsumedRatio,
@@ -113,6 +115,27 @@ describe('formatCountdown', () => {
       new Date('2026-09-05T00:00:00.000Z')
     );
     expect(formatCountdown(parts)).toBe('Đã quá hạn');
+  });
+});
+
+describe('getConsumptionFactor', () => {
+  it('bằng 1 ở đúng 25°C', () => {
+    expect(getConsumptionFactor(25)).toBeCloseTo(1);
+  });
+
+  it('30°C ra ~1.41 (k = 2^0.5)', () => {
+    expect(getConsumptionFactor(30)).toBeCloseTo(1.41, 2);
+  });
+
+  it('15°C ra 0.5 (k = 2^-1)', () => {
+    expect(getConsumptionFactor(15)).toBeCloseTo(0.5, 5);
+  });
+});
+
+describe('getForecastShelfDays', () => {
+  it('chia initialShelfDays cho hệ số tiêu hao tại nhiệt độ đó', () => {
+    expect(getForecastShelfDays(10, 25)).toBeCloseTo(10);
+    expect(getForecastShelfDays(10, 15)).toBeCloseTo(20);
   });
 });
 

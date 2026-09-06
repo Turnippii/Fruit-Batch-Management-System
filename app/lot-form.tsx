@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
@@ -9,13 +9,22 @@ import { SectionCard } from '../src/components/SectionCard';
 import { PrimaryButton } from '../src/components/PrimaryButton';
 import { Chip } from '../src/components/Chip';
 import { AsyncState } from '../src/components/AsyncState';
-import { getExpiryDate, getRemainingDaysFloor, resolveConsumedRatio } from '../src/lib/shelfLife';
+import { DatePickerModal } from '../src/components/DatePickerModal';
+import {
+  getConsumptionFactor,
+  getExpiryDate,
+  getForecastShelfDays,
+  getRemainingDaysFloor,
+  resolveConsumedRatio,
+} from '../src/lib/shelfLife';
 import { formatDate } from '../src/lib/format';
 import { generateLotCode } from '../src/lib/lotCode';
 import { useAuth } from '../src/context/AuthContext';
 import { useLots } from '../src/state/LotsContext';
 import { useConfig } from '../src/hooks/useConfig';
 import type { FruitTypeCode, StorageTypeCode } from '../src/mocks/lots';
+
+const MAX_HARVEST_DATE_PAST_DAYS = 30;
 
 const FRUIT_TYPES = Object.keys(FRUIT_TYPE_LABELS);
 const STORAGE_TYPES = Object.keys(STORAGE_TYPE_LABELS);
@@ -33,19 +42,32 @@ export default function LotFormScreen() {
   const [storageType, setStorageType] = useState('lanh');
   const [gardenName, setGardenName] = useState(profile?.orgName ?? '');
   const [submitting, setSubmitting] = useState(false);
+  const [harvestDate, setHarvestDate] = useState(() => new Date());
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
 
-  const harvestDate = useMemo(() => new Date(), []);
-  const lotCode = useMemo(() => generateLotCode(harvestDate), [harvestDate]);
+  // Mã lô sinh một lần khi mở màn (không phụ thuộc harvestDate) — đổi ngày thu hoạch
+  // không nên làm mã QR đã hiện trên màn đổi theo.
+  const lotCode = useMemo(() => generateLotCode(new Date()), []);
 
   const ripenessSupported = config?.ripenessSupported ?? [];
   const ripenessLabel = ripenessSupported.includes(fruitType) ? RIPENESS_LABELS[ripeness] ?? RIPENESS_LABELS.Chin_toi : RIPENESS_LABELS.Chin_toi;
 
+  // Số nguyên thống nhất cho toàn bộ vòng đời của lô (hiển thị VÀ dùng làm mẫu số công
+  // thức tiêu hao) — tránh lệch số giữa "hạn ban đầu" và "còn lại" trên cùng một màn.
   const initialShelfDays = useMemo(() => {
     if (!config) return 0;
     const base = config.shelfLifeBase[fruitType] ?? 7;
     const factor = config.ripenessFactor[ripeness] ?? 1;
-    return Math.round(base * factor * 10) / 10;
+    return Math.round(base * factor);
   }, [config, fruitType, ripeness]);
+
+  const assumedTempC = config
+    ? storageType === 'lanh'
+      ? config.assumedTemp.at_garden_cold
+      : config.assumedTemp.at_garden_normal
+    : 0;
+  const consumptionFactor = getConsumptionFactor(assumedTempC);
+  const forecastShelfDays = Math.round(getForecastShelfDays(initialShelfDays, assumedTempC));
 
   // Lô chưa thực sự tồn tại (chưa bấm "In tem QR"), nhưng trái cây đã bắt đầu hao mòn
   // kể từ harvestDate — dựng lô tạm để đi qua đúng resolveConsumedRatio thay vì giả
@@ -121,7 +143,10 @@ export default function LotFormScreen() {
             <Text style={styles.readonlyValue}>{ripenessLabel}</Text>
 
             <FormLabel text={strings.lotForm.harvestDate} />
-            <Text style={styles.readonlyValue}>{formatDate(harvestDate)}</Text>
+            <Pressable onPress={() => setDatePickerVisible(true)}>
+              <Text style={styles.readonlyValue}>{formatDate(harvestDate)}</Text>
+              <Text style={styles.changeHint}>{strings.lotForm.changeDateHint}</Text>
+            </Pressable>
 
             <FormLabel text={strings.lotForm.quantity} />
             <TextInput
@@ -153,6 +178,13 @@ export default function LotFormScreen() {
             <ResultRow label={strings.lotForm.initialShelfDays} value={`${initialShelfDays} ${strings.common.days}`} />
             <ResultRow label={strings.lotForm.estimatedExpiry} value={formatDate(expiryDate)} />
             <ResultRow label={strings.retailerHome.daysLeft} value={`${remainingDays} ${strings.common.days}`} />
+            <ResultRow label={strings.lotForm.assumedTempLabel} value={`${assumedTempC}°C`} />
+            <ResultRow label={strings.lotForm.consumptionFactorLabel} value={`k = ${consumptionFactor.toFixed(2)}`} />
+            <ResultRow
+              label={strings.lotForm.forecastLifespanLabel}
+              value={`~${forecastShelfDays} ${strings.common.days}`}
+            />
+            <Text style={styles.forecastNote}>{strings.lotForm.forecastNote}</Text>
           </SectionCard>
 
           <SectionCard title={strings.lotForm.qrTitle} style={[styles.section, styles.qrCard]}>
@@ -167,6 +199,14 @@ export default function LotFormScreen() {
           />
         </ScrollView>
       </AsyncState>
+      <DatePickerModal
+        visible={datePickerVisible}
+        title={strings.lotForm.harvestDatePickerTitle}
+        value={harvestDate}
+        maxPastDays={MAX_HARVEST_DATE_PAST_DAYS}
+        onSelect={setHarvestDate}
+        onClose={() => setDatePickerVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -212,6 +252,11 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontWeight: '600',
   },
+  changeHint: {
+    fontSize: fontSize.xs,
+    color: colors.greenMain,
+    marginTop: spacing.xs,
+  },
   input: {
     backgroundColor: colors.bg,
     borderWidth: 1,
@@ -235,6 +280,12 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '700',
     color: colors.ink,
+  },
+  forecastNote: {
+    fontSize: fontSize.xs,
+    color: colors.muted,
+    marginTop: spacing.sm,
+    fontStyle: 'italic',
   },
   qrCard: {
     alignItems: 'center',

@@ -92,11 +92,25 @@ function findHistoryTime(history: LotHistoryEntry[], event: string): Date | unde
   return entry ? new Date(entry.timestamp) : undefined;
 }
 
+/** Hệ số tiêu hao tức thời tại một nhiệt độ: 2^((T-25)/10) — dùng riêng để hiển thị
+ * mức ảnh hưởng của điều kiện bảo quản (màn tạo lô), tách khỏi getStageConsumedRatio
+ * (còn nhân thêm dt/initialShelfDays). */
+export function getConsumptionFactor(tempC: number): number {
+  return Math.pow(2, (tempC - 25) / 10);
+}
+
 /** Công thức tiêu hao một chặng: (dt tính bằng giờ / 24) * 2^((T-25)/10) / initialShelfDays. */
 export function getStageConsumedRatio(from: Date, to: Date, tempC: number, initialShelfDays: number): number {
   if (initialShelfDays <= 0) return 0;
   const dtHours = Math.max(0, (to.getTime() - from.getTime()) / MS_PER_HOUR);
-  return (dtHours / 24) * Math.pow(2, (tempC - 25) / 10) / initialShelfDays;
+  return (dtHours / 24) * getConsumptionFactor(tempC) / initialShelfDays;
+}
+
+/** Dự báo số ngày lô sống được NẾU giữ nguyên đúng nhiệt độ này suốt vòng đời — chỉ
+ * dùng làm ước lượng hiển thị ở màn tạo lô, không dùng để tính consumedRatio thật
+ * (luôn cộng dồn theo từng chặng với nhiệt độ khác nhau, xem resolveConsumedRatio). */
+export function getForecastShelfDays(initialShelfDays: number, tempC: number): number {
+  return initialShelfDays / getConsumptionFactor(tempC);
 }
 
 /**
