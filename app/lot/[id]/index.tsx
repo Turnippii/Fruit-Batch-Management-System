@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -6,8 +6,10 @@ import { colors } from '../../../src/constants/theme';
 import { strings } from '../../../src/constants/strings';
 import { AsyncState } from '../../../src/components/AsyncState';
 import { LotDetailView } from '../../../src/components/LotDetailView';
+import { DemoBanner } from '../../../src/components/DemoBanner';
 import { useLots } from '../../../src/state/LotsContext';
 import { useAuth } from '../../../src/context/AuthContext';
+import { useDemo } from '../../../src/context/DemoContext';
 import { useLotById } from '../../../src/hooks/useLotById';
 import { useConfig } from '../../../src/hooks/useConfig';
 import { useStationTemp } from '../../../src/hooks/useStationTemp';
@@ -23,14 +25,12 @@ export default function LotDetailScreen() {
   const { lot, loading: lotLoading, error: lotError } = useLotById(id);
   const { config, loading: configLoading, error: configError } = useConfig();
   const { station } = useStationTemp(lot?.currentHolderId, lot ? getHolderRole(lot.status) : undefined);
-  const [now, setNow] = useState(() => new Date());
+  // "now" HIỂN THỊ — có thể bị nén tốc độ ở chế độ demo (xem DemoContext). Các mốc
+  // GHI xuống Firebase (shippedAt, soldAt...) bên dưới luôn dùng new Date() thật,
+  // không được lẫn với giá trị này.
+  const { now } = useDemo();
   const [deleting, setDeleting] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const loading = lotLoading || configLoading;
   const error = lotError ?? configError;
@@ -126,6 +126,7 @@ export default function LotDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <DemoBanner />
       <AsyncState loading={loading} error={error} isEmpty={!lot} emptyText={strings.lotDetail.notFound}>
         {lot && config && (
           <LotDetailView

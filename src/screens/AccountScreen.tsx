@@ -5,6 +5,7 @@ import { colors, fontSize, radius, spacing } from '../constants/theme';
 import { strings } from '../constants/strings';
 import { SectionCard } from '../components/SectionCard';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { DemoSettingsSection } from '../components/DemoSettingsSection';
 import { useAuth } from '../context/AuthContext';
 
 interface AccountScreenProps {
@@ -51,6 +52,8 @@ export function AccountScreen({ accentColor }: AccountScreenProps) {
           <InfoRow label={orgLabel} value={profile.orgName} />
           <InfoRow label={strings.account.emailLabel} value={profile.email} />
         </SectionCard>
+
+        <DemoSettingsSection />
 
         <PrimaryButton label={strings.account.logout} onPress={handleLogout} color={colors.redMain} variant="outline" />
       </ScrollView>

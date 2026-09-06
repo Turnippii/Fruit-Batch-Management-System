@@ -7,7 +7,9 @@ import { StatCard } from '../../src/components/StatCard';
 import { PrimaryButton } from '../../src/components/PrimaryButton';
 import { LotListItem } from '../../src/components/LotListItem';
 import { AsyncState } from '../../src/components/AsyncState';
+import { DemoBanner } from '../../src/components/DemoBanner';
 import { useAuth } from '../../src/context/AuthContext';
+import { useDemo } from '../../src/context/DemoContext';
 import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
 import { useConfig } from '../../src/hooks/useConfig';
 import { getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
@@ -17,6 +19,7 @@ const RECENT_LOTS_LIMIT = 4;
 export default function GrowerHomeScreen() {
   const router = useRouter();
   const { profile } = useAuth();
+  const { now } = useDemo();
   const { lots, loading, error } = useLotsByGrower(profile?.uid);
   const { config } = useConfig();
 
@@ -29,7 +32,7 @@ export default function GrowerHomeScreen() {
   // stationTemp thì giữ nguyên consumedRatio đã lưu, không cộng dồn thêm).
   const expiringSoonCount = config
     ? lots.filter((lot) => {
-        const consumedRatio = resolveConsumedRatio(lot, config.assumedTemp, undefined, new Date());
+        const consumedRatio = resolveConsumedRatio(lot, config.assumedTemp, undefined, now);
         const color = getStatusColor(getRemainingRatio(consumedRatio));
         return color === 'yellow' || color === 'red';
       }).length
@@ -37,6 +40,7 @@ export default function GrowerHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <DemoBanner />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.greeting}>
           {strings.growerHome.greeting}, {profile?.name ?? strings.auth.roleGrower}

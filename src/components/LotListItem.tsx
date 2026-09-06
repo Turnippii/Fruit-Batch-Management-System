@@ -7,6 +7,7 @@ import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsum
 import { getHolderRole } from '../lib/lotHolder';
 import { useConfig } from '../hooks/useConfig';
 import { useStationTemp } from '../hooks/useStationTemp';
+import { useDemo } from '../context/DemoContext';
 import { StatusBadge } from './StatusBadge';
 
 interface LotListItemProps {
@@ -17,7 +18,8 @@ interface LotListItemProps {
 export function LotListItem({ lot, onPress }: LotListItemProps) {
   const { config } = useConfig();
   const { station } = useStationTemp(lot.currentHolderId, getHolderRole(lot.status));
-  const consumedRatio = resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, new Date());
+  const { now } = useDemo();
+  const consumedRatio = resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, now);
   const remainingRatio = getRemainingRatio(consumedRatio);
   const statusColor = statusColorHex[getStatusColor(remainingRatio)];
   const remainingDays = getRemainingDaysFloor(lot.initialShelfDays, consumedRatio);

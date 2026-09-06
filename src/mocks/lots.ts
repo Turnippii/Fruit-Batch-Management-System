@@ -36,6 +36,9 @@ export interface Lot {
   createdAt: string;
   history: LotHistoryEntry[];
   note?: string;
+  /** true = lô mẫu sinh bởi chế độ demo (xem src/lib/demoLots.ts) — để nút "Xoá lô
+   * mẫu" biết chính xác cần dọn lô nào, không đụng tới lô thật. */
+  isDemo?: boolean;
 }
 
 export const mockLots: Lot[] = [

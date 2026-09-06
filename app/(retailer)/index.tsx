@@ -7,7 +7,9 @@ import { SectionCard } from '../../src/components/SectionCard';
 import { StatCard } from '../../src/components/StatCard';
 import { ColorDot } from '../../src/components/ColorDot';
 import { AsyncState } from '../../src/components/AsyncState';
+import { DemoBanner } from '../../src/components/DemoBanner';
 import { useAuth } from '../../src/context/AuthContext';
+import { useDemo } from '../../src/context/DemoContext';
 import { useLotsByHolder } from '../../src/hooks/useLotsByHolder';
 import { useStationTemp } from '../../src/hooks/useStationTemp';
 import { useConfig } from '../../src/hooks/useConfig';
@@ -16,6 +18,7 @@ import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsum
 export default function RetailerHomeScreen() {
   const router = useRouter();
   const { profile } = useAuth();
+  const { now } = useDemo();
   const { lots, loading, error } = useLotsByHolder(profile?.uid);
   const { station } = useStationTemp(profile?.uid, profile?.role);
   const { config } = useConfig();
@@ -23,7 +26,7 @@ export default function RetailerHomeScreen() {
   const inStockLots = lots
     .filter((lot) => lot.status === 'in_stock')
     .map((lot) => {
-      const consumedRatio = config ? resolveConsumedRatio(lot, config.assumedTemp, station?.temp, new Date()) : 0;
+      const consumedRatio = config ? resolveConsumedRatio(lot, config.assumedTemp, station?.temp, now) : 0;
       return {
         lot,
         remainingDays: getRemainingDaysFloor(lot.initialShelfDays, consumedRatio),
@@ -37,6 +40,7 @@ export default function RetailerHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      <DemoBanner />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.stationName}>{station?.name ?? profile?.orgName}</Text>
 
