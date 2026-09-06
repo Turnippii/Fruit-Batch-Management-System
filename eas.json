@@ -10,6 +10,19 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_FB_API_KEY": "AIzaSyBSD5krUCi84RW16bsVr1KYmtSiWbqW3KU",
+        "EXPO_PUBLIC_FB_AUTH_DOMAIN": "fruit-management-system-a2e62.firebaseapp.com",
+        "EXPO_PUBLIC_FB_DATABASE_URL": "https://fruit-management-system-a2e62-default-rtdb.asia-southeast1.firebasedatabase.app",
+        "EXPO_PUBLIC_FB_PROJECT_ID": "fruit-management-system-a2e62",
+        "EXPO_PUBLIC_FB_APP_ID": "1:653489875262:web:ba978f6b6f7d6915af246f"
+      }
     }
   }
 }
