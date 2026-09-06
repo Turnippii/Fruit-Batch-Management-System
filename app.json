@@ -42,7 +42,8 @@
           "backgroundColor": "#14532D",
           "resizeMode": "contain"
         }
-      ]
+      ],
+      "react-native-fast-tflite"
     ]
   }
 }

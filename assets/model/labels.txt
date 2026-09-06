@@ -1,0 +1,10 @@
+Chuoi_chin_ky
+Chuoi_chin_toi
+Chuoi_hong
+Chuoi_xanh
+Dau
+Nho
+Tao
+Xoai_chin_toi
+Xoai_hong
+Xoai_xanh

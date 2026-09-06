@@ -330,6 +330,28 @@ border       #D6E5D4   viền
   ở mốc 4 (đỡ build 2 lần). Icon/splash: `assets/icon.png`, `assets/adaptive-icon.png`
   (foreground trong suốt, nền `#14532D` khai trong `app.json`), `assets/splash.png`,
   `assets/favicon.png` — 4 file do người dùng cung cấp, không phải sinh bằng code.
+- `react-native-fast-tflite` + `react-native-nitro-modules` đã cài (mốc chuẩn bị cho
+  mốc 4) — CHỈ cài đặt + khai báo, CHƯA viết code tích hợp (`classify()` trong
+  `src/mocks/classifier.ts` vẫn còn nguyên, xem "Model AI"). Lưu ý cài đặt:
+  - `react-native-nitro-modules` là peer dependency BẮT BUỘC của
+    `react-native-fast-tflite` (thư viện dựng trên Nitro Modules) — `npm install`
+    không tự cài peer dependency, phải cài tay cả hai gói, thiếu gói này app crash
+    lúc load native module chứ không phải lỗi cấu hình.
+  - `app.json` có thêm plugin `"react-native-fast-tflite"` (không kèm object cấu
+    hình) — plugin này CHỈ có tác dụng khi truyền `enableCoreMLDelegate` (iOS) hoặc
+    `enableAndroidGpuLibraries` (Android GPU/NNAPI), cả hai đều KHÔNG dùng ở đây
+    (model nhỏ, chạy CPU đủ nhanh) nên hiện tại plugin này là no-op, giữ chỗ khai
+    báo sẵn cho lúc cần bật GPU delegate sau này.
+  - `metro.config.js` (mới tạo) thêm `tflite` vào `resolver.assetExts` — thiếu dòng
+    này thì `require('assets/model/fruit_int8.tflite')` bị Metro cố parse như code
+    và lỗi ngay lúc bundle, không phải lỗi runtime.
+  - `assets/model/fruit_int8.tflite` + `assets/model/labels.txt` đã có sẵn trong
+    repo (người dùng tự chép), khớp đúng 10 nhãn ở "Model AI" — chưa có code nào
+    `require()` file này.
+  - Đã chạy `npx expo prebuild --clean` để xác nhận cấu hình hợp lệ (sinh thư mục
+    `android/` cục bộ, đã có sẵn trong `.gitignore`) — thư mục này chỉ để kiểm tra,
+    KHÔNG dùng để build tay, vẫn build qua EAS như quy trình cũ. CẦN build lại APK
+    (gộp chung với `expo-splash-screen` ở trên) mới nạp được 2 thư viện native này.
 - `firebase`, `expo-constants`, `@react-native-async-storage/async-storage` đã
   có sẵn trong package.json — không cần cài lại hay build lại APK cho phần
   Firebase (đều là JS package, không phải native module mới)
