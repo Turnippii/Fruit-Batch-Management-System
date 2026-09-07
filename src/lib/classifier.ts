@@ -21,12 +21,28 @@ interface LoadedModel {
 
 let loadPromise: Promise<LoadedModel> | null = null;
 
+/** `Asset.fromModule(...).uri` là tên resource đóng gói trong APK ở bản
+ * preview/production (vd. "assets_model_labels"), KHÔNG có protocol —
+ * `downloadAsync()` chép asset ra file thật rồi `localUri` mới có tiền tố
+ * `file://`. Thiếu bước ép `file://` này thì `fetch()`/`URL()` phía native
+ * throw "no protocol" dù dev build chạy bình thường (Metro phục vụ asset
+ * qua HTTP nên `uri` vốn đã là URL đầy đủ). */
+function toFileUri(localUri: string | null, fallbackUri: string): string {
+  const uri = localUri ?? fallbackUri;
+  if (uri.startsWith('file://') || uri.startsWith('http')) return uri;
+  return `file://${uri}`;
+}
+
 /** Đọc labels.txt THẬT lúc runtime (không hardcode danh sách nhãn) — mỗi dòng một
  * nhãn, đúng thứ tự khớp với output của model. */
 async function loadLabels(): Promise<string[]> {
   const asset = Asset.fromModule(LABELS_ASSET_MODULE);
   await asset.downloadAsync();
-  const uri = asset.localUri ?? asset.uri;
+  const uri = toFileUri(asset.localUri, asset.uri);
+  if (__DEV__) {
+    // eslint-disable-next-line no-console
+    console.log(`[classifier] labels.txt uri: ${uri}`);
+  }
   const text = await (await fetch(uri)).text();
   const labels = text
     .split(/\r?\n/)
@@ -38,6 +54,23 @@ async function loadLabels(): Promise<string[]> {
   return labels;
 }
 
+/** KHÔNG truyền thẳng `require(...)` cho `loadTensorflowModel` — thư viện tự resolve
+ * bằng `Image.resolveAssetSource()`, ở bản dev trả về URL HTTP đầy đủ (Metro phục vụ
+ * asset qua mạng) nên chạy được, nhưng ở bản preview/production trả về TÊN RESOURCE
+ * đóng gói trong APK (vd. "assets_model_fruit_int8"), không có protocol — native
+ * `AssetLoader.loadAsset` gọi `URL(path)` throw MalformedURLException: no protocol.
+ * Phải tự tải asset ra file thật bằng expo-asset rồi truyền `{ url: 'file://...' }`. */
+async function resolveModelUri(): Promise<string> {
+  const asset = Asset.fromModule(MODEL_ASSET_MODULE);
+  await asset.downloadAsync();
+  const uri = toFileUri(asset.localUri, asset.uri);
+  if (__DEV__) {
+    // eslint-disable-next-line no-console
+    console.log(`[classifier] model .tflite uri: ${uri}`);
+  }
+  return uri;
+}
+
 /**
  * Nạp model + labels MỘT LẦN, giữ trong bộ nhớ cho các lần classify() sau — không nạp
  * lại mỗi lần chụp ảnh. Nếu nạp thất bại, KHÔNG cache lỗi vĩnh viễn: xoá promise để lần
@@ -46,7 +79,10 @@ async function loadLabels(): Promise<string[]> {
 function loadModelAndLabels(): Promise<LoadedModel> {
   if (!loadPromise) {
     const startedAt = Date.now();
-    loadPromise = Promise.all([loadTensorflowModel(MODEL_ASSET_MODULE, []), loadLabels()])
+    loadPromise = Promise.all([
+      resolveModelUri().then((url) => loadTensorflowModel({ url }, [])),
+      loadLabels(),
+    ])
       .then(([model, labels]) => {
         if (__DEV__) {
           // eslint-disable-next-line no-console
