@@ -1,0 +1,79 @@
+{
+  "_ghi_chu": "Số liệu thu thập bằng log chẩn đoán tạm thời trong src/lib/classifier.ts (hàm logPixelStats), chạy trên bản development, thiết bị Android thật. Đoạn log này đã được gỡ khỏi mã nguồn sau khi hoàn tất chẩn đoán. Cỡ mẫu nhỏ, chỉ mang tính minh hoạ cho hiện tượng domain gap, không phải thống kê toàn tập.",
+
+  "phuong_phap": {
+    "mo_ta": "Sau khi ảnh được resize về 224x224 và giải mã thành mảng RGB uint8, tính giá trị trung bình từng kênh màu trên toàn ảnh.",
+    "kich_thuoc_anh": "224x224x3, uint8, khoảng giá trị 0-255",
+    "thiet_bi": "Điện thoại Android, bản development build"
+  },
+
+  "anh_tu_dataset": {
+    "nguon": "assets/debug/, lấy ngẫu nhiên từ dataset_final_v2/test/",
+    "so_mau": 3,
+    "chi_tiet": [
+      {
+        "file": "Apple_00188.jpeg",
+        "lop_that": "Tao",
+        "mean_R": 192.2, "mean_G": 137.7, "mean_B": 127.9,
+        "min": 0, "max": 255,
+        "du_doan": "Tao",
+        "do_tin_cay": 1.000,
+        "dung": true
+      },
+      {
+        "file": "overripe_00009.jpg",
+        "lop_that": "Chuoi_chin_ky",
+        "mean_R": 191.0, "mean_G": 188.3, "mean_B": 182.8,
+        "min": 22, "max": 246,
+        "du_doan": "Chuoi_chin_ky",
+        "do_tin_cay": 1.000,
+        "dung": true
+      },
+      {
+        "file": "unripe_00016.jpg",
+        "lop_that": "Xoai_xanh",
+        "mean_R": 84.1, "mean_G": 101.4, "mean_B": 53.4,
+        "min": 0, "max": 255,
+        "du_doan": "Xoai_xanh",
+        "do_tin_cay": 0.957,
+        "dung": true
+      }
+    ],
+    "ket_qua": "3/3 dự đoán đúng, độ tin cậy 0.957 - 1.000"
+  },
+
+  "anh_chup_that_lan_dau": {
+    "mo_ta": "Chụp bằng camera trong app, khoảng cách xa, ánh sáng phòng trong nhà, quả không chiếm hết khung hình.",
+    "so_mau": 6,
+    "chi_tiet": [
+      { "doi_tuong": "Xoài", "mean_R": 133.4, "mean_G": 118.9, "mean_B": 99.8,
+        "du_doan": "Tao", "do_tin_cay": 0.984, "dung": false },
+      { "doi_tuong": "Xoài", "mean_R": 109.9, "mean_G": 140.0, "mean_B": 92.5,
+        "du_doan": "Tao", "do_tin_cay": 0.980, "dung": false },
+      { "doi_tuong": "Xoài", "mean_R": 166.0, "mean_G": 68.5, "mean_B": 111.5,
+        "du_doan": "Tao", "do_tin_cay": 1.000, "dung": false },
+      { "doi_tuong": "Chuối", "du_doan": "Tao", "do_tin_cay": 0.867, "dung": false },
+      { "doi_tuong": "Chuối", "du_doan": "Tao", "do_tin_cay": 0.776, "dung": false },
+      { "doi_tuong": "Chuối", "du_doan": "Tao", "do_tin_cay": 0.624, "dung": false }
+    ],
+    "ket_qua": "0/6 dự đoán đúng, toàn bộ rơi về lớp Tao"
+  },
+
+  "anh_chup_that_sau_dieu_chinh": {
+    "mo_ta": "Chụp gần hơn, quả chiếm phần lớn khung hình, ánh sáng đủ.",
+    "ket_qua_dinh_tinh": "Chuối và xoài đều nhận diện đúng. Độ tin cậy với xoài thấp hơn chuối, phù hợp với việc lớp Xoai_xanh chỉ có 244 ảnh huấn luyện, ít nhất trong 10 lớp.",
+    "so_lieu_dinh_luong": "Chưa đo có hệ thống. Cần chụp 10 ảnh mỗi loại để lập bảng."
+  },
+
+  "nhan_xet": {
+    "khoang_cach_phan_bo": "Ảnh dataset có giá trị trung bình các kênh màu tập trung quanh 190 (chụp studio nền sáng). Ảnh chụp thực tế trong phòng nằm quanh 110-140, tối hơn đáng kể.",
+    "co_che_that_bai": "Khi phân bố màu lệch khỏi vùng model từng thấy, dự đoán có xu hướng rơi về lớp Tao — lớp có dữ liệu đa dạng nhất về bối cảnh do được lấy từ nguồn web scrape, trong khi chuối và xoài đến từ hai bộ ripeness chụp studio nhất quán.",
+    "khong_phai_loi_ky_thuat": "Đã loại trừ các nguyên nhân kỹ thuật: shape đầu vào đúng [1,224,224,3], số phần tử khớp 150528, tổng xác suất sau dequantize xấp xỉ 1.0, thứ tự kênh màu RGB đúng (quả táo đỏ cho mean_R cao nhất). Ba ảnh mẫu từ chính tập test đều dự đoán đúng.",
+    "bien_phap_giam_thieu": [
+      "Ngưỡng tin cậy 0.70: dưới ngưỡng thì ẩn kết quả, bắt người dùng chọn thủ công",
+      "Nút Sửa luôn hiện cạnh kết quả độ chín",
+      "Hướng dẫn trên màn chụp: đưa quả gần camera, nền sáng, tránh ngược sáng"
+    ],
+    "huong_khac_phuc": "Bổ sung ảnh tự chụp bằng chính thiết bị demo vào tập huấn luyện rồi fine-tune lại vài epoch."
+  }
+}
