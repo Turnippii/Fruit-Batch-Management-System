@@ -1,0 +1,160 @@
+{
+  "banana": {
+    "overripe": {
+      "orig_count": 2691,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 0,
+        "dhash_dup": 538
+      },
+      "total_rejected": 538,
+      "normal_rejected": 538,
+      "reject_pct": 19.992567818654774,
+      "reject_pct_normal": 19.992567818654774,
+      "n_groups": 951,
+      "groups_train": 666,
+      "groups_valid": 143,
+      "groups_test": 142,
+      "files_train": 1493,
+      "files_valid": 143,
+      "files_test": 142,
+      "capped_files": 375
+    },
+    "ripe": {
+      "orig_count": 4015,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 0,
+        "dhash_dup": 699
+      },
+      "total_rejected": 699,
+      "normal_rejected": 699,
+      "reject_pct": 17.409713574097136,
+      "reject_pct_normal": 17.409713574097136,
+      "n_groups": 1433,
+      "groups_train": 1003,
+      "groups_valid": 215,
+      "groups_test": 215,
+      "files_train": 2362,
+      "files_valid": 215,
+      "files_test": 215,
+      "capped_files": 524
+    },
+    "rotten": {
+      "orig_count": 4593,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 0,
+        "dhash_dup": 798
+      },
+      "total_rejected": 798,
+      "normal_rejected": 798,
+      "reject_pct": 17.37426518615284,
+      "reject_pct_normal": 17.37426518615284,
+      "n_groups": 1665,
+      "groups_train": 1166,
+      "groups_valid": 250,
+      "groups_test": 249,
+      "files_train": 2662,
+      "files_valid": 250,
+      "files_test": 249,
+      "capped_files": 634
+    },
+    "unripe": {
+      "orig_count": 2179,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 0,
+        "dhash_dup": 517
+      },
+      "total_rejected": 517,
+      "normal_rejected": 517,
+      "reject_pct": 23.72648003671409,
+      "reject_pct_normal": 23.72648003671409,
+      "n_groups": 755,
+      "groups_train": 528,
+      "groups_valid": 113,
+      "groups_test": 114,
+      "files_train": 1142,
+      "files_valid": 113,
+      "files_test": 114,
+      "capped_files": 293
+    }
+  },
+  "mango": {
+    "Ripe": {
+      "orig_count": 558,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 86,
+        "dhash_dup": 34
+      },
+      "total_rejected": 120,
+      "normal_rejected": 120,
+      "reject_pct": 21.50537634408602,
+      "reject_pct_normal": 21.50537634408602,
+      "n_groups": 438,
+      "groups_train": 307,
+      "groups_valid": 66,
+      "groups_test": 65,
+      "files_train": 307,
+      "files_valid": 66,
+      "files_test": 65,
+      "capped_files": 0
+    },
+    "Rotten": {
+      "orig_count": 1642,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 0,
+        "md5_dup": 237,
+        "dhash_dup": 123
+      },
+      "total_rejected": 360,
+      "normal_rejected": 360,
+      "reject_pct": 21.92448233861145,
+      "reject_pct_normal": 21.92448233861145,
+      "n_groups": 1282,
+      "groups_train": 897,
+      "groups_valid": 192,
+      "groups_test": 193,
+      "files_train": 897,
+      "files_valid": 192,
+      "files_test": 193,
+      "capped_files": 0
+    },
+    "Unripe": {
+      "orig_count": 541,
+      "reasons": {
+        "corrupt": 0,
+        "short_side": 0,
+        "short_side_lowres_subsource": 110,
+        "md5_dup": 48,
+        "dhash_dup": 34
+      },
+      "total_rejected": 192,
+      "normal_rejected": 82,
+      "reject_pct": 35.48983364140481,
+      "reject_pct_normal": 15.157116451016636,
+      "n_groups": 349,
+      "groups_train": 244,
+      "groups_valid": 52,
+      "groups_test": 53,
+      "files_train": 244,
+      "files_valid": 52,
+      "files_test": 53,
+      "capped_files": 0
+    }
+  }
+}
