@@ -15,7 +15,7 @@ import { useLotsByHolder } from '../../src/hooks/useLotsByHolder';
 import { useStationTemp } from '../../src/hooks/useStationTemp';
 import { useConfig } from '../../src/hooks/useConfig';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
-import { getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
+import { getRemainingDays, getRemainingDaysFloor, getRemainingRatio, getStatusColor, resolveConsumedRatio } from '../../src/lib/shelfLife';
 
 export default function RetailerHomeScreen() {
   const router = useRouter();
@@ -26,15 +26,26 @@ export default function RetailerHomeScreen() {
   const { config, refetch: refetchConfig } = useConfig();
   const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
 
+  // Sắp theo số ngày còn lại tăng dần (lô sắp hết hạn lên đầu) — KHÔNG sắp theo
+  // harvestDate, vì hạn dùng không tỉ lệ thuận với ngày thu hoạch (mỗi loại quả
+  // T0 khác nhau, mỗi lô độ chín khác nhau). Cùng số ngày còn lại thì sắp phụ
+  // theo harvestDate tăng dần.
   const inStockLots = lots
     .filter((lot) => lot.status === 'in_stock')
     .map((lot) => {
       const consumedRatio = config ? resolveConsumedRatio(lot, config.assumedTemp, station?.temp, now) : 0;
       return {
         lot,
+        remainingDaysPrecise: getRemainingDays(lot.initialShelfDays, consumedRatio),
         remainingDays: getRemainingDaysFloor(lot.initialShelfDays, consumedRatio),
         color: getStatusColor(getRemainingRatio(consumedRatio)),
       };
+    })
+    .sort((a, b) => {
+      if (a.remainingDaysPrecise !== b.remainingDaysPrecise) {
+        return a.remainingDaysPrecise - b.remainingDaysPrecise;
+      }
+      return new Date(a.lot.harvestDate).getTime() - new Date(b.lot.harvestDate).getTime();
     });
 
   const greenCount = inStockLots.filter((e) => e.color === 'green').length;

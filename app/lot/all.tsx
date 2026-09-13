@@ -10,9 +10,11 @@ import { AsyncState } from '../../src/components/AsyncState';
 import { EmptyState } from '../../src/components/EmptyState';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useAuth } from '../../src/context/AuthContext';
+import { useDemo } from '../../src/context/DemoContext';
 import { useLotsByGrower } from '../../src/hooks/useLotsByGrower';
 import { useConfig } from '../../src/hooks/useConfig';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
+import { getRemainingDays, resolveConsumedRatio } from '../../src/lib/shelfLife';
 import type { LotStatus } from '../../src/mocks/lots';
 
 const STATUS_FILTERS: (LotStatus | 'all')[] = ['all', 'at_garden', 'in_transit', 'in_stock', 'sold', 'discarded'];
@@ -21,14 +23,15 @@ export default function LotAllScreen() {
   const router = useRouter();
   const { profile } = useAuth();
   const { lots, loading, error } = useLotsByGrower(profile?.uid);
-  const { refetch: refetchConfig } = useConfig();
+  const { config, refetch: refetchConfig } = useConfig();
+  const { now } = useDemo();
   const { refreshing, onRefresh } = usePullToRefresh(refetchConfig);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<LotStatus | 'all'>('all');
 
   const filteredLots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return lots.filter((lot) => {
+    const matched = lots.filter((lot) => {
       const matchesStatus = statusFilter === 'all' || lot.status === statusFilter;
       const matchesQuery =
         normalizedQuery.length === 0 ||
@@ -36,7 +39,23 @@ export default function LotAllScreen() {
         lot.gardenName.toLowerCase().includes(normalizedQuery);
       return matchesStatus && matchesQuery;
     });
-  }, [lots, query, statusFilter]);
+
+    if (!config) return matched;
+
+    // Sắp theo số ngày còn lại tăng dần (lô sắp hết hạn lên đầu) — không sắp
+    // theo harvestDate vì hạn dùng phụ thuộc T0 theo loại quả và độ chín từng
+    // lô, không tỉ lệ thuận với ngày thu hoạch. Dùng nhiệt độ giả định thay vì
+    // cảm biến thật của từng đại lý đang giữ lô (mỗi lô có thể ở một kho khác
+    // nhau) — cùng đánh đổi "đếm nhanh" như expiringSoonCount ở trang chủ chủ
+    // vườn, không chờ subscribe cảm biến của từng đại lý cho từng lô trong
+    // danh sách. Cùng số ngày còn lại thì sắp phụ theo harvestDate tăng dần.
+    return [...matched].sort((a, b) => {
+      const aRemaining = getRemainingDays(a.initialShelfDays, resolveConsumedRatio(a, config.assumedTemp, undefined, now));
+      const bRemaining = getRemainingDays(b.initialShelfDays, resolveConsumedRatio(b, config.assumedTemp, undefined, now));
+      if (aRemaining !== bRemaining) return aRemaining - bRemaining;
+      return new Date(a.harvestDate).getTime() - new Date(b.harvestDate).getTime();
+    });
+  }, [lots, query, statusFilter, config, now]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
