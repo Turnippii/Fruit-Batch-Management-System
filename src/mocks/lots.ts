@@ -215,39 +215,3 @@ export const mockStation = {
   updatedAt: '2026-09-01T08:00:00.000Z',
   retailerId: 'mock-retailer',
 };
-
-export const mockAlerts = [
-  {
-    id: 'alert-001',
-    lotId: 'FC-2026-A7X92K',
-    level: 'green' as const,
-    type: 'new_stock',
-    createdAt: '2026-08-29T01:30:00.000Z',
-    isRead: true,
-    message: 'Lô xoài mới nhập kho, tình trạng ổn định.',
-    retailerId: 'mock-retailer',
-    growerId: 'mock-grower',
-  },
-  {
-    id: 'alert-002',
-    lotId: 'FC-2026-B3M18P',
-    level: 'yellow' as const,
-    type: 'expiring_soon',
-    createdAt: '2026-09-01T06:00:00.000Z',
-    isRead: false,
-    message: 'Lô chuối sắp hết hạn, ưu tiên bán trước.',
-    retailerId: 'mock-retailer',
-    growerId: 'mock-grower',
-  },
-  {
-    id: 'alert-003',
-    lotId: 'FC-2026-E5K33W',
-    level: 'red' as const,
-    type: 'overdue',
-    createdAt: '2026-09-01T07:00:00.000Z',
-    isRead: false,
-    message: 'Lô nho sắp quá hạn sử dụng, cần xử lý ngay.',
-    retailerId: 'mock-retailer',
-    growerId: 'mock-grower',
-  },
-];

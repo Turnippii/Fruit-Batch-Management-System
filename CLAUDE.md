@@ -46,8 +46,6 @@ lots/{lotId}             fruitType, ripeness, harvestDate, quantity, unit,
                          status, growerId, currentHolderId, imageUrl, createdAt
 lots/{lotId}/history     [{ event, timestamp, actorId, note }]
 stations/{stationId}     temp, humid, updatedAt, retailerId
-alerts/{alertId}         lotId, level: "green"|"yellow"|"red", type, createdAt,
-                         isRead, message, retailerId, growerId
 config/ripenessFactor    hệ số độ chín theo loại quả và trạng thái
 config/shelfLifeBase     T0 theo loại quả, lấy từ USDA FoodKeeper
 config/ripenessSupported ["Chuoi", "Xoai"]
@@ -64,19 +62,19 @@ Kiến trúc 3 lớp, không màn hình nào gọi Firebase SDK trực tiếp:
   `getFirebaseAuth()`/`getFirebaseDatabase()` — khởi tạo TRỄ (app/auth với
   persistence AsyncStorage/database), chỉ chạm Firebase ở lần gọi thật đầu
   tiên, để `USE_MOCK = true` chạy được kể cả khi `.env` thiếu hoặc mất mạng.
-  `auth.ts`, `lots.ts`, `stations.ts`, `config.ts`, `alerts.ts` mỗi file bọc
+  `auth.ts`, `lots.ts`, `stations.ts`, `config.ts` mỗi file bọc
   một nhóm thao tác (CRUD, `onValue`/`get`, query `orderByChild`+`equalTo`),
   luôn gọi `getFirebaseAuth()/getFirebaseDatabase()` bên trong hàm — KHÔNG
   import `auth`/`database` như hằng số ở đầu file (sẽ ép khởi tạo sớm).
 - `src/hooks/` — bọc service thành hook React (`useConfig`, `useStationTemp`,
-  `useLotById`, `useLotsByHolder`, `useLotsByGrower`, `useAlerts`), tự hủy
+  `useLotById`, `useLotsByHolder`, `useLotsByGrower`), tự hủy
   listener trong cleanup của `useEffect`, tự chuyển sang dữ liệu giả khi
   `USE_MOCK = true`.
 - `src/context/AuthContext.tsx` (qua `useAuth`) và `src/state/LotsContext.tsx`
   (qua `useLots`) — 2 context toàn app, cùng cơ chế chuyển mock/thật.
 
 **Mọi hook subscribe theo uid (`useStationTemp`, `useLotById`, `useLotsByHolder`,
-`useLotsByGrower`, `useAlerts`) đều gọi `useAuth()` bên trong để tự bảo vệ,
+`useLotsByGrower`) đều gọi `useAuth()` bên trong để tự bảo vệ,
 không phụ thuộc caller truyền đúng:**
 
 - Không subscribe khi `AuthContext.loading === true` (chưa có token thật —
@@ -106,7 +104,7 @@ dùng đúng email của 2 tài khoản Firebase Auth thật — đổi `USE_MOC
 phải đổi cách đăng nhập, chỉ mật khẩu bị bỏ qua ở chế độ mock. `growerId`/
 `currentHolderId`/`actorId` trong `src/mocks/lots.ts` cũng dùng đúng
 `mock-grower`/`mock-retailer` — khớp uid mock mà `AuthContext` gán
-(`mock-${role}`), để `useLotsByGrower`/`useLotsByHolder`/`useAlerts` lọc
+(`mock-${role}`), để `useLotsByGrower`/`useLotsByHolder` lọc
 đúng ở cả hai chế độ.
 
 **Biến môi trường** (`.env`, tiền tố bắt buộc `EXPO_PUBLIC_` để lọt vào bundle
@@ -157,13 +155,6 @@ Database → Rules).** Phân quyền theo đúng vai trò, hệ quả quan trọ
   qua Firebase JS SDK với ID token của user (app di động, Console, hoặc gọi
   REST API kèm ID token) — tức chặn đúng lỗ hổng "một tài khoản bất kỳ tự ý
   sửa nhiệt độ kho người khác qua app/API", không phải lớp bảo vệ cho ESP32.
-- `alerts`: mỗi alert lưu sẵn `retailerId` (đại lý đang giữ lô lúc cảnh báo
-  phát sinh) và `growerId` (chủ vườn của lô đó) — denormalize từ lô liên quan
-  tại thời điểm tạo, không tra chéo sang `lots` mỗi lần đọc. Đọc DANH SÁCH chỉ
-  được phép khi query đúng `orderByChild('retailerId'|'growerId').equalTo(auth.uid)`
-  — khớp `useAlerts(role, uid)`: đại lý lọc theo `retailerId` (kho của mình),
-  chủ vườn lọc theo `growerId` (lô mình gửi đi). Ghi (tạo/sửa alert) chỉ đại
-  lý liên quan làm được — chủ vườn chỉ đọc, không ghi.
 - `app/(retailer)/scan.tsx` mô phỏng "vừa quét được" bằng cách lấy lô đầu
   tiên có status `in_transit` từ danh sách toàn bộ — cũng không còn đọc được
   ở chế độ Firebase thật vì cùng lý do trên. Cần đổi sang nhập/tra đúng 1 mã
@@ -248,6 +239,25 @@ thật ở thẻ "Nguồn nhiệt độ" (`getConsumedRatioBreakdown`, độc l�
 | green | remainingRatio > 0.5 | còn an toàn |
 | yellow | 0.2 < remainingRatio ≤ 0.5 | ưu tiên bán |
 | red | remainingRatio ≤ 0.2 | quá hạn hoặc sắp hết |
+
+**Cảnh báo được SUY RA từ lô, không lưu** — không có nhánh `alerts/` trên
+Firebase (bản cũ đọc `alerts/` nhưng không ai ghi vào, đã bỏ hẳn cùng rule).
+`src/screens/AlertsScreen.tsx` gọi `buildLotAlerts` (`src/lib/lotAlerts.ts`,
+có unit test): cảnh báo = lô có màu vàng/đỏ theo đúng `getStatusColor` ở trên,
+tính qua `resolveConsumedRatio`, sắp theo số ngày còn lại tăng dần (bằng nhau
+thì theo `harvestDate`).
+
+- Lọc theo vai trò: đại lý thấy lô `in_stock` có `currentHolderId = uid`
+  (từ `useLotsByHolder`); chủ vườn thấy lô có `growerId = uid` (từ
+  `useLotsByGrower`), trừ `sold`/`discarded`.
+- Dùng `now` từ `useDemo()` — chế độ nén thời gian cũng áp dụng cho cảnh báo.
+- Chủ vườn KHÔNG có nhiệt độ trạm (rules không cho đọc trạm của đại lý,
+  `useStationTemp` trả `undefined` với role grower) — nên lô `in_stock` bên
+  chủ vườn chỉ dùng `consumedRatio` đã lưu, không cộng phần trôi theo nhiệt
+  độ kho. Đại lý dùng nhiệt độ trạm của chính mình, khớp màn kho.
+- Trạng thái rỗng "Kho đang ổn định" chỉ thay cho PHẦN danh sách cảnh báo;
+  thẻ "Dòng thời gian truy xuất" luôn hiển thị (nút "Truy xuất nguồn gốc" ở
+  `LotDetailView` dẫn sang đây với `lotId` của cả lô xanh).
 
 **Bộ đếm ngược chạy phía client** bằng `setInterval` từ `expiryDate` suy ra, không
 gọi Firebase mỗi giây.

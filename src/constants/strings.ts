@@ -251,8 +251,11 @@ export const strings = {
     title: 'Cảnh báo & truy xuất',
     alertsTitle: 'Danh sách cảnh báo',
     traceTitle: 'Dòng thời gian truy xuất',
-    exportReport: 'Xuất báo cáo',
-    emptyAlerts: 'Chưa có cảnh báo nào.',
+    emptyAlerts: 'Kho đang ổn định',
+    message: {
+      yellow: 'Còn dưới một nửa hạn sử dụng — nên ưu tiên bán trước.',
+      red: 'Sắp hết hoặc đã quá hạn sử dụng — cần xử lý ngay.',
+    },
   },
   demo: {
     sectionTitle: 'Chế độ demo',

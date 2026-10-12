@@ -1,45 +1,29 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fontSize, radius, spacing, StatusColorKey, statusColorHex } from '../constants/theme';
+import { colors, fontSize, radius, spacing, statusColorHex } from '../constants/theme';
 import { ALERT_LEVEL_LABELS, FRUIT_TYPE_LABELS, strings } from '../constants/strings';
-import { formatDateTime } from '../lib/format';
-import { getRemainingDaysFloor, resolveConsumedRatio } from '../lib/shelfLife';
-import { getHolderRole } from '../lib/lotHolder';
-import type { Lot } from '../mocks/lots';
-import { assumedTemp as defaultAssumedTemp } from '../mocks/config';
-import { useConfig } from '../hooks/useConfig';
-import { useStationTemp } from '../hooks/useStationTemp';
+import type { LotAlert } from '../lib/lotAlerts';
 
 interface AlertCardProps {
-  level: StatusColorKey;
-  message: string;
-  createdAt: string;
-  lot?: Lot;
+  alert: LotAlert;
   onPress?: () => void;
 }
 
-export function AlertCard({ level, message, createdAt, lot, onPress }: AlertCardProps) {
-  const { config } = useConfig();
-  const { station } = useStationTemp(lot?.currentHolderId, lot ? getHolderRole(lot.status) : undefined);
+export function AlertCard({ alert, onPress }: AlertCardProps) {
+  const { lot, level, remainingDays } = alert;
   const color = statusColorHex[level];
-  const remainingDays = lot
-    ? getRemainingDaysFloor(
-        lot.initialShelfDays,
-        resolveConsumedRatio(lot, config?.assumedTemp ?? defaultAssumedTemp, station?.temp, new Date())
-      )
-    : null;
 
   return (
     <Pressable onPress={onPress} style={[styles.card, { borderLeftColor: color }]}>
       <View style={styles.headerRow}>
         <Text style={[styles.level, { color }]}>{ALERT_LEVEL_LABELS[level]}</Text>
-        <Text style={styles.time}>{formatDateTime(createdAt)}</Text>
-      </View>
-      <Text style={styles.message}>{message}</Text>
-      {lot ? (
-        <Text style={styles.lotInfo}>
-          {lot.id} · {FRUIT_TYPE_LABELS[lot.fruitType]} · {remainingDays} {strings.common.days} {strings.retailerHome.daysLeft}
+        <Text style={[styles.days, { color }]}>
+          {remainingDays} {strings.common.days} {strings.retailerHome.daysLeft}
         </Text>
-      ) : null}
+      </View>
+      <Text style={styles.message}>{strings.alerts.message[level]}</Text>
+      <Text style={styles.lotInfo}>
+        {FRUIT_TYPE_LABELS[lot.fruitType]} · {lot.id}
+      </Text>
     </Pressable>
   );
 }
@@ -65,10 +49,10 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '700',
   },
-  time: {
+  days: {
     flexShrink: 0,
-    fontSize: fontSize.xs,
-    color: colors.muted,
+    fontSize: fontSize.sm,
+    fontWeight: '700',
   },
   message: {
     marginTop: spacing.xs,
