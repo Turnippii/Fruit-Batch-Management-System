@@ -42,16 +42,6 @@ Vòng đời một lô: `at_garden → in_transit → in_stock → sold`
 
 ---
 
-## Ảnh chụp màn hình
-
-<!-- Chèn 3-4 ảnh chụp thật vào docs/screenshots/ rồi thay đường dẫn dưới -->
-
-| Chủ vườn | Đại lý |
-|---|---|
-| ![Tạo lô](docs/screenshots/grower-capture.png) | ![Chi tiết lô](docs/screenshots/retailer-detail.png) |
-
----
-
 ## Kiến trúc
 
 ![Kiến trúc hệ thống](docs/infographic/1_kien_truc_he_thong.png)
