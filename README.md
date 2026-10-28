@@ -6,6 +6,11 @@ Hệ thống quản lý và truy xuất lô trái cây từ vườn đến đạ
 Ứng dụng React Native + trạm IoT ESP32 + Firebase Realtime Database, kèm mô hình
 nhận diện trái cây chạy trực tiếp trên điện thoại.
 
+## Video demo
+
+[![Video demo FruitTrace](https://img.youtube.com/vi/9HRWM-XjPeQ/hqdefault.jpg)](https://www.youtube.com/watch?v=9HRWM-XjPeQ)
+
+Bấm vào ảnh để xem video trên YouTube.
 ---
 
 ## Điểm cốt lõi
@@ -229,17 +234,6 @@ Xem [`docs/tien-do/`](docs/tien-do/) — bảng Gantt và slide báo cáo từng
 
 ---
 
-## Phân công
-
-| Thành viên | Mảng phụ trách |
-|---|---|
-| *(điền tên)* | Luồng chủ vườn, kiến trúc app |
-| *(điền tên)* | Luồng đại lý, quét QR |
-| *(điền tên)* | Phần cứng ESP32, Firebase |
-| *(điền tên)* | AI và dữ liệu |
-
----
-
 ## Tài liệu
 
 - [`docs/FRUITTRACE_TAI_LIEU_TONG_HOP.docx`](docs/) — tài liệu tổng hợp đề tài,
@@ -248,3 +242,4 @@ Xem [`docs/tien-do/`](docs/tien-do/) — bảng Gantt và slide báo cáo từng
 - [`CLAUDE.md`](CLAUDE.md) — bối cảnh kỹ thuật, quy tắc nghiệp vụ, các quyết định
   kiến trúc đã chốt
 - [`database.rules.json`](database.rules.json) — Security Rules của Realtime Database
+- [`docs/tong-hop/`](docs/tong-hop/) — tài liệu tổng hợp môn học: báo cáo cuối kỳ, slide, video
